@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gravador_mg/variables.dart';
+import 'package:gravador_mg/variables2.dart';
 import 'package:process_run/shell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
