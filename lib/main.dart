@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:gravador_mg/config.dart';
 import 'package:gravador_mg/variables.dart';
 import 'package:process_run/shell.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 
 void main() {
   runApp(MyApp());
@@ -34,7 +39,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _recording;
-  SharedPreferences _prefs;
+  TextEditingController _controllerCP = TextEditingController();
+  Map config = {};
 
   @override
   void initState() {
@@ -43,192 +49,215 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  Future<SharedPreferences> get getPrefs => SharedPreferences.getInstance();
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: FutureBuilder<SharedPreferences>(
-          future: getPrefs,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              //            _portsEnabledToRecord.clear();
-              _prefs = snapshot.data;
-              if (_prefs.containsKey(widget.slot)) {
-                //            _portsEnabledToRecord = _prefs.getStringList(widget.slot);
-
-                /*           ports.entries.forEach((element) {
-                  if (_portsEnabledToRecord.contains(element.key)) {
-                    ports[element.key]['active'] = true;
-                  }
-                }); */
-              } else {
-                _prefs.setStringList(widget.slot, []);
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () => showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              content: Container(
-                                height: 250,
-                                width: 200,
-                                child: ListView.builder(
-                                  itemCount: 4,
-                                  itemBuilder: (context, index) => Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Text('SLOT ${index + 1}'),
-                                      DropdownButton(
-                                        value: slots['SLOT ${index + 1}']
-                                            ['port'],
-                                        onChanged: (value) {
-                                          setState(() {
-                                            slots['SLOT ${index + 1}']['port'] =
-                                                value;
-                                          });
-                                        },
-                                        items: ports
-                                            .map((value) => DropdownMenuItem(
-                                                value: value,
-                                                child: Text(value)))
-                                            .toList(),
-                                      ),
-                                      Checkbox(
-                                          value: slots['SLOT ${index + 1}']
-                                              ['active'],
-                                          onChanged: (value) {
-                                            setState(() {
-                                              slots['SLOT ${index + 1}']
-                                                  ['active'] = value;
-                                            });
-                                          })
-                                    ],
-                                  ),
-                                ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Flexible(
+            flex: 1,
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      content: Container(
+                        height: 250,
+                        width: 200,
+                        child: ListView.builder(
+                          itemCount: 4,
+                          itemBuilder: (context, index) => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text('SLOT ${index + 1}'),
+                              DropdownButton(
+                                value: slots['SLOT ${index + 1}']['port'],
+                                onChanged: (value) {
+                                  setState(() {
+                                    slots['SLOT ${index + 1}']['port'] = value;
+                                  });
+                                },
+                                items: ports
+                                    .map((value) => DropdownMenuItem(
+                                        value: value, child: Text(value)))
+                                    .toList(),
                               ),
-                              actions: [
-                                TextButton(
-                                  child: Text('Voltar'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                TextButton(
-                                  child: Text('Confirmar'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
+                              Checkbox(
+                                  value: slots['SLOT ${index + 1}']['active'],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      slots['SLOT ${index + 1}']['active'] =
+                                          value;
+                                    });
+                                  })
+                            ],
                           ),
-                          child: Text('Config'),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          child: Text('Voltar'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        TextButton(
+                          child: Text('Confirmar'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                         ),
                       ],
                     ),
                   ),
-                  Flexible(
-                    flex: 8,
-                    child: Container(
-                      height: 100,
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: containerSlots),
-                    ),
+                  child: Text('Config'),
+                ),
+                ElevatedButton(
+                    onPressed: () => _openFile(),
+                    child: Text('Carregar Programa')),
+                Flexible(
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    controller: _controllerCP,
                   ),
-                  Flexible(
-                    flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                      child: ElevatedButton(
-                        onPressed: () => _recordDevice(),
-                        child: Text('GRAVAR'),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return Center(child: CircularProgressIndicator());
-            }
-          }),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            flex: 8,
+            child: Container(
+              height: 100,
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: containerSlots),
+            ),
+          ),
+          Flexible(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: ElevatedButton(
+                onPressed: () => _recordDevice(),
+                child: Text('GRAVAR'),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   List<Widget> get containerSlots {
     List<Widget> children = [];
-    slots.entries
-        .where((element) => element.value['active'])
-        .forEach((element) {
-      children.add(
-        Flexible(
-          flex: 2,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 30),
-            width: double.maxFinite,
-            decoration: BoxDecoration(
-                border: Border.all(),
-                borderRadius: BorderRadius.circular(20),
-                color: element.value['color']),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(element.key),
-                Text('PORTA: ' + element.value['port'])
-              ],
+    if (config.isNotEmpty) {
+      config['config'].entries.forEach((element) {
+        if (element.value['active']) {
+          children.add(
+            Flexible(
+              flex: 2,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 30),
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(20),
+                    color: element.value['color']),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(element.key),
+                    Text('PORTA: ' + element.value['port'])
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-      );
-    });
+          );
+        }
+      });
+    }
+
     return children;
   }
 
-  /*  */
+  _openFile() async {
+    Directory dir = Directory(
+        'C:\\Users\\DURVAL\\Documents\\Flutter Projects\\gravador_mg\\lib');
+    String path = await FilesystemPicker.open(
+      title: 'Carregar Programa',
+      context: context,
+      rootDirectory: dir,
+      fsType: FilesystemType.file,
+      folderIconColor: Colors.teal,
+      allowedExtensions: ['.json'],
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+    );
+    if (path.isNotEmpty) {
+      File _file = File(path);
+      config = jsonDecode(_file.readAsStringSync());
+      String _hex = config['hex'];
+      String _ref = config['ref'];
+      config['config'].values.forEach((element) {
+        element['color'] = Colors.grey[300];
+        element['command'] =
+            '''efm8load.exe -p ${element['port']} -b 115200 $_hex''';
+      });
+      _controllerCP.text = _ref;
+      setState(() {});
+    }
+  }
 
   _recordDevice() async {
-    List<String> outputs = [];
-
-    slots.entries
-        .where((element) => element.value['active'])
-        .forEach((element) {
-      element.value['command'] = 'cmd.exe'
-          /* '''efm8load.exe -p ${element.value['port']} -b 115200 EFM8BB1_PCA_SoftwareTimerBlinky.efm8''' */;
-    });
-
     try {
       setState(() {
         _recording = true;
       });
 
       try {
-        slots.entries
-            .where((element) => element.value['active'])
-            .forEach((element) {
-          Shell shell = Shell(
-            verbose: false,
-          );
-          shell.run(element.value['command']).then((process) {
-            process.outLines.forEach((elementProcess) {
-              if (elementProcess.contains('?')) {
-                setState(() {});
-              } else if (elementProcess.contains('@@@@@@')) {
-                setState(() {});
-              }
-            });
+        if (config.isNotEmpty) {
+          config['config'].values.forEach((element) {
+            element['color'] = Colors.yellow;
+            /* Shell shell = Shell(
+              verbose: false,
+            );
+            shell.run(element['command']).then((process) {
+              process.outLines.forEach((elementProcess) {
+                if (elementProcess.contains('?')) {
+                  element['color'] = Colors.red;
+                  setState(() {});
+                } else if (elementProcess.contains('@@@@@@')) {
+                  element['color'] = Colors.green;
+                  setState(() {});
+                }
+              });
+            }); */
           });
+        }
+        Timer(Duration(seconds: 2), () {
+          int index = 0;
+          config['config'].values.forEach((element) {
+            if (index % 2 == 0) {
+              element['color'] = Colors.green;
+            }
+            index++;
+          });
+          setState(() {});
+        });
+        Timer(Duration(seconds: 4), () {
+          int index = 0;
+          config['config'].values.forEach((element) {
+            if (index % 2 != 0) {
+              element['color'] = Colors.red;
+            }
+            index++;
+          });
+          setState(() {});
         });
       } catch (e) {}
     } /* on ShellException catch (e) {
