@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/config.dart';
+import 'package:gravador_mg/new_config.dart';
 import 'package:gravador_mg/variables.dart';
 import 'package:process_run/shell.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -39,12 +40,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _recording;
+  double _percentageLinearIndicator;
   TextEditingController _controllerCP = TextEditingController();
   Map config = {};
+  List<Widget> _slotsWidget = [];
+  List<Widget> _linearProgressWidget = [];
 
   @override
   void initState() {
     _recording = false;
+    _percentageLinearIndicator = 0;
 
     super.initState();
   }
@@ -62,57 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => showDialog(
-                    barrierDismissible: false,
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      content: Container(
-                        height: 250,
-                        width: 200,
-                        child: ListView.builder(
-                          itemCount: 4,
-                          itemBuilder: (context, index) => Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text('SLOT ${index + 1}'),
-                              DropdownButton(
-                                value: slots['SLOT ${index + 1}']['port'],
-                                onChanged: (value) {
-                                  setState(() {
-                                    slots['SLOT ${index + 1}']['port'] = value;
-                                  });
-                                },
-                                items: ports
-                                    .map((value) => DropdownMenuItem(
-                                        value: value, child: Text(value)))
-                                    .toList(),
-                              ),
-                              Checkbox(
-                                  value: slots['SLOT ${index + 1}']['active'],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      slots['SLOT ${index + 1}']['active'] =
-                                          value;
-                                    });
-                                  })
-                            ],
-                          ),
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          child: Text('Voltar'),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        TextButton(
-                          child: Text('Confirmar'),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => NewConfig(),
                     ),
                   ),
                   child: Text('Config'),
@@ -141,6 +98,16 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Flexible(
             flex: 2,
+            child: Container(
+              height: 100,
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: _linearProgressWidget),
+            ),
+          ),
+          Flexible(
+            flex: 2,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: ElevatedButton(
@@ -155,35 +122,49 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get containerSlots {
-    List<Widget> children = [];
+    _slotsWidget.clear();
+    _linearProgressWidget.clear();
     if (config.isNotEmpty) {
       config['config'].entries.forEach((element) {
-        if (element.value['active']) {
-          children.add(
-            Flexible(
-              flex: 2,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 30),
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(20),
-                    color: element.value['color']),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(element.key),
-                    Text('PORTA: ' + element.value['port'])
-                  ],
-                ),
+        _slotsWidget.add(
+          Flexible(
+            flex: 2,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 30),
+              width: double.maxFinite,
+              decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.circular(20),
+                color: element.value['active']
+                    ? element.value['color']
+                    : Colors.grey[300],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(element.key),
+                  Text('PORTA: ' + element.value['port'])
+                ],
               ),
             ),
-          );
-        }
+          ),
+        );
+        _linearProgressWidget.add(
+          Flexible(
+            flex: 2,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 30),
+              width: double.maxFinite,
+              child: LinearProgressIndicator(
+                value: _percentageLinearIndicator,
+              ),
+            ),
+          ),
+        );
       });
     }
 
-    return children;
+    return _slotsWidget;
   }
 
   _openFile() async {
@@ -217,6 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       setState(() {
         _recording = true;
+        _percentageLinearIndicator = 0.0;
       });
 
       try {
@@ -239,11 +221,26 @@ class _MyHomePageState extends State<MyHomePage> {
             }); */
           });
         }
+
+        Timer.periodic(Duration(milliseconds: 10), (timer) {
+          if (_percentageLinearIndicator >= 1.0) {
+            timer.cancel();
+          } else if (_percentageLinearIndicator >= 0 &&
+              _percentageLinearIndicator < 0.5) {
+            _percentageLinearIndicator += 0.05;
+          } else if (_percentageLinearIndicator >= 0.5 &&
+              _percentageLinearIndicator < 0.8) {
+            _percentageLinearIndicator += 0.001;
+          }
+          setState(() {});
+        });
+
         Timer(Duration(seconds: 2), () {
           int index = 0;
           config['config'].values.forEach((element) {
             if (index % 2 == 0) {
               element['color'] = Colors.green;
+              _percentageLinearIndicator = 1.0;
             }
             index++;
           });
