@@ -207,10 +207,9 @@ class _MyHomePageState extends State<MyHomePage> {
   _openFile() async {
     final file.FileSystem fs = local.LocalFileSystem();
 
-    Directory dir = fs.currentDirectory;
+    Directory dir =
+        fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\lib');
 
-    /* Directory dir =
-        Directory('C:\\Users\\dperipato\\Desktop\\Project\\gravador_mg\\lib'); */
     String path = await FilesystemPicker.open(
       title: 'Carregar Programa',
       context: context,
