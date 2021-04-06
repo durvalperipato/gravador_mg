@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:gravador_mg/new_config.dart';
+import 'package:Gravador_MG/new_config.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:process_run/shell.dart';
 import 'package:file/file.dart' as file;
@@ -33,7 +32,6 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
-  final String slot = 'SLOT';
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -41,12 +39,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<double> _percentageLinearIndicator = [];
-  TextEditingController _controllerCP = TextEditingController();
-  Map config = {};
   List<Widget> _slotsWidget = [];
   List<Widget> _linearProgressWidget = [];
+
+  TextEditingController _controllerCP = TextEditingController();
+
+  Map config = {};
+
   String message = '';
+
   bool _isRecording;
+
   FocusNode _recordFocusNode = FocusNode();
 
   @override
@@ -143,12 +146,22 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               Flexible(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: ElevatedButton(
-                    onPressed: () => {
-                      null,
-                    }, //_recordDevice(),
-                    child: Text('GRAVAR'),
+                  padding: const EdgeInsets.symmetric(horizontal: 80.0),
+                  child: Container(
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(10),
+                      ),
+                      onPressed: _isRecording ? null : () => _recordDevice(),
+                      child: Text('GRAVAR',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            letterSpacing: 40,
+                          )),
+                    ),
                   ),
                 ),
               ),
@@ -182,7 +195,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       color: Colors.white,
                       blurRadius: 2),
                 ],
-                //border: Border.all(),
                 borderRadius: BorderRadius.circular(20),
                 color: element.value['active']
                     ? element.value['color']
@@ -224,8 +236,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   _openFile() async {
     final file.FileSystem fs = local.LocalFileSystem();
 
-    Directory dir =
-        fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\lib');
+    Directory dir = fs.currentDirectory
+        .childDirectory(fs.currentDirectory.path + '\\files');
 
     String path = await FilesystemPicker.open(
       title: 'Carregar Programa',
@@ -254,6 +266,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   _recordDevice() async {
     try {
       setState(() {
+        _isRecording = true;
         _percentageLinearIndicator.forEach((element) {
           _percentageLinearIndicator[
               _percentageLinearIndicator.indexOf(element)] = 0.0;
@@ -267,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             Shell shell = Shell(
               verbose: false,
             );
-            shell.run('cmd.exe' /* element['command'] */).then((process) {
+            shell.run(element['command']).then((process) {
               process.outLines.forEach((elementProcess) {
                 if (elementProcess.contains('?')) {
                   element['color'] = Colors.red[200];

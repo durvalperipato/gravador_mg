@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:gravador_mg/config.dart';
-import 'package:gravador_mg/variables.dart';
+import 'package:Gravador_MG/config.dart';
+import 'package:Gravador_MG/variables.dart';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
 
@@ -34,171 +34,183 @@ class _NewConfigState extends State<NewConfig> {
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Flexible(
               flex: 6,
-              child: Column(
-                children: [
-                  Flexible(
-                    flex: 4,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Row(
                         children: [
-                          Flexible(
-                            flex: 1,
-                            child: Row(
-                              children: [
-                                Container(
-                                    height: 30,
-                                    width: 150,
-                                    child: Center(
-                                      child: Text(
-                                        'Slots:',
-                                      ),
-                                    )),
-                                Container(
-                                  height: 30,
-                                  width: 150,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.zero),
-                                    textAlign: TextAlign.center,
-                                    controller: _lengthSlots,
-                                    onTap: () => _lengthSlots.clear(),
-                                    onFieldSubmitted: (value) {
-                                      if (value.isNotEmpty &&
-                                          int.tryParse(value) > 0 &&
-                                          int.tryParse(value) < 30) {
-                                        int _length = int.parse(value);
-                                        slots.clear();
-                                        for (int index = 1;
-                                            index <= _length;
-                                            index++) {
-                                          slots['SLOT $index'] = {
-                                            'port': 'COM$index',
-                                            'active': true,
-                                          };
-                                        }
-                                        setState(() {});
-                                      }
-                                    },
-                                  ),
+                          Container(
+                              height: 30,
+                              width: 150,
+                              child: Center(
+                                child: Text(
+                                  'Slots:',
                                 ),
-                              ],
+                              )),
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.zero),
+                              textAlign: TextAlign.center,
+                              controller: _lengthSlots,
+                              onTap: () => _lengthSlots.clear(),
+                              onFieldSubmitted: (value) {
+                                if (value.isNotEmpty &&
+                                    int.tryParse(value) > 0 &&
+                                    int.tryParse(value) < 30) {
+                                  int _length = int.parse(value);
+                                  slots.clear();
+                                  for (int index = 1;
+                                      index <= _length;
+                                      index++) {
+                                    slots['SLOT $index'] = {
+                                      'port': 'COM$index',
+                                      'active': true,
+                                    };
+                                  }
+                                  setState(() {});
+                                }
+                              },
                             ),
                           ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Flexible(
-                            flex: 1,
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 30,
-                                  width: 150,
-                                  child: Center(
-                                    child: Text('Programa:'),
-                                  ),
-                                ),
-                                Container(
-                                  height: 30,
-                                  width: 150,
-                                  child: TextFormField(
-                                    onTap: () async {
-                                      Directory dir = Directory('C:\\');
-
-                                      String path = await FilesystemPicker.open(
-                                        title: 'Carregar Programa',
-                                        context: context,
-                                        rootDirectory: dir,
-                                        fsType: FilesystemType.file,
-                                        folderIconColor: Colors.teal,
-                                        allowedExtensions: ['.efm8'],
-                                        fileTileSelectMode:
-                                            FileTileSelectMode.wholeTile,
-                                      );
-                                      if (path.isNotEmpty) {
-                                        List<String> _pathName =
-                                            path.split("\\");
-                                        _hexFile.text = _pathName.last;
-                                        String teste =
-                                            _pathName.last.split(".").first;
-                                        _reference.text = teste;
-                                      }
-                                    },
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.zero),
-                                    textAlign: TextAlign.center,
-                                    controller: _hexFile,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Flexible(
-                            flex: 1,
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 30,
-                                  width: 150,
-                                  child: Center(
-                                    child: Text('Referência:'),
-                                  ),
-                                ),
-                                Container(
-                                  height: 30,
-                                  width: 150,
-                                  child: TextFormField(
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.zero),
-                                    textAlign: TextAlign.center,
-                                    controller: _reference,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Flexible(
-                              flex: 2,
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    if (/* _formKey.currentState.validate() */ _hexFile
-                                            .text.isNotEmpty &&
-                                        _reference.text.isNotEmpty &&
-                                        _lengthSlots.text.isNotEmpty) {
-                                      _formKey.currentState.save();
-                                      final file.FileSystem fs =
-                                          local.LocalFileSystem();
-
-                                      Directory dir = fs.currentDirectory;
-                                      File _file = File(dir.path +
-                                          '\\lib\\${_reference.text}.json');
-
-                                      Config _newConfig = Config(slots,
-                                          _hexFile.text, _reference.text);
-
-                                      _file.writeAsStringSync(
-                                          jsonEncode(_newConfig));
-                                    }
-                                  },
-                                  child: Text('Salvar'))),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: Center(
+                              child: Text('Programa:'),
+                            ),
+                          ),
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: TextFormField(
+                              onTap: () async {
+                                Directory dir = Directory('C:\\');
+
+                                String path = await FilesystemPicker.open(
+                                  title: 'Carregar Programa',
+                                  context: context,
+                                  rootDirectory: dir,
+                                  fsType: FilesystemType.file,
+                                  folderIconColor: Colors.teal,
+                                  allowedExtensions: ['.efm8'],
+                                  fileTileSelectMode:
+                                      FileTileSelectMode.wholeTile,
+                                );
+                                if (path.isNotEmpty) {
+                                  _hexFile.text = path.split("\\").last;
+                                  _reference.text = _hexFile.text
+                                      .split(".")
+                                      .first
+                                      .toUpperCase();
+                                }
+                              },
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.zero),
+                              textAlign: TextAlign.center,
+                              controller: _hexFile,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: Center(
+                              child: Text('Referência:'),
+                            ),
+                          ),
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: TextFormField(
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.zero),
+                              textAlign: TextAlign.center,
+                              controller: _reference,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Flexible(
+                      flex: 2,
+                      child: Container(
+                        width: 300,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (/* _formKey.currentState.validate() */ _hexFile
+                                    .text.isNotEmpty &&
+                                _reference.text.isNotEmpty &&
+                                _lengthSlots.text.isNotEmpty) {
+                              _formKey.currentState.save();
+                              final file.FileSystem fs =
+                                  local.LocalFileSystem();
+
+                              Directory dir = fs.currentDirectory;
+                              File _file = File(dir.path +
+                                  '\\files\\${_reference.text}.json');
+
+                              Config _newConfig = Config(slots, _hexFile.text,
+                                  _reference.text.toUpperCase());
+
+                              _file.writeAsStringSync(jsonEncode(_newConfig));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green[300],
+                                  content: Text('ARQUIVO SALVO COM SUCESSO: ' +
+                                      _reference.text.toUpperCase()),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.red[300],
+                                  content: Text(
+                                      'FAVOR PREENCHER TODOS OS CAMPOS (SLOTS, PROGRAMA E REFERENCIA)'),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text('Salvar'),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             Flexible(
