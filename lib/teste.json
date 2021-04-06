@@ -1,1 +1,1 @@
-{"config":{"SLOT 1":{"port":"COM1","active":true},"SLOT 2":{"port":"COM2","active":true}},"hex":"teste.efm8","ref":"teste"}
+{"config":{"SLOT 1":{"port":"COM1","active":true},"SLOT 2":{"port":"COM2","active":true},"SLOT 3":{"port":"COM3","active":true},"SLOT 4":{"port":"COM4","active":true}},"hex":"teste.efm8","ref":"teste"}

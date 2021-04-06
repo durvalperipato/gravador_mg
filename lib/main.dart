@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/new_config.dart';
@@ -38,16 +39,19 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<double> _percentageLinearIndicator = [];
   TextEditingController _controllerCP = TextEditingController();
   Map config = {};
   List<Widget> _slotsWidget = [];
   List<Widget> _linearProgressWidget = [];
   String message = '';
+  bool _isRecording;
+  FocusNode _recordFocusNode = FocusNode();
 
   @override
   void initState() {
+    _isRecording = false;
     super.initState();
   }
 
@@ -57,86 +61,99 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Flexible(
-              flex: 1,
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => NewConfig(),
-                      ),
-                    ),
-                    child: Text('Configuração'),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  ElevatedButton(
-                      onPressed: () => _openFile(),
-                      child: Text('Carregar Programa')),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Flexible(
-                    child: TextField(
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.zero,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+      body: RawKeyboardListener(
+        autofocus: true,
+        focusNode: _recordFocusNode,
+        onKey: (value) {
+          if (value.data.logicalKey.debugName == "Enter" &&
+              _isRecording == false) {
+            _isRecording = true;
+            _recordDevice();
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Flexible(
+                flex: 1,
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => NewConfig(),
                         ),
                       ),
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                      controller: _controllerCP,
+                      child: Text('Configuração'),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Expanded(
-              flex: 3,
-              child: Container(
-                height: 100,
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: containerSlots),
-              ),
-            ),
-            Flexible(
-              flex: 2,
-              child: Container(
-                height: 100,
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _linearProgressWidget),
-              ),
-            ),
-            Flexible(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                child: ElevatedButton(
-                  onPressed: () => _recordDevice(),
-                  child: Text('GRAVAR'),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    ElevatedButton(
+                        onPressed: () => _openFile(),
+                        child: Text('Carregar Programa')),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Flexible(
+                      child: TextField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.zero,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                        controller: _controllerCP,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              SizedBox(
+                height: 30,
+              ),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  height: 100,
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: containerSlots),
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Container(
+                  height: 100,
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _linearProgressWidget),
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                  child: ElevatedButton(
+                    onPressed: () => {
+                      null,
+                    }, //_recordDevice(),
+                    child: Text('GRAVAR'),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -250,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Shell shell = Shell(
               verbose: false,
             );
-            shell.run(element['command']).then((process) {
+            shell.run('cmd.exe' /* element['command'] */).then((process) {
               process.outLines.forEach((elementProcess) {
                 if (elementProcess.contains('?')) {
                   element['color'] = Colors.red[200];
@@ -264,7 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         }
 
-        /* Timer.periodic(Duration(milliseconds: 10), (timer) {
+        /* Timer.periodic(Duration(milliseconds: 200), (timer) {
           for (int index = 0;
               index < _percentageLinearIndicator.length;
               index++) {
@@ -274,16 +291,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 _percentageLinearIndicator[index] < 0.5) {
               _percentageLinearIndicator[index] += 0.05;
             } else if (_percentageLinearIndicator[index] >= 0.5 &&
-                _percentageLinearIndicator[index] < 0.8) {
+                _percentageLinearIndicator[index] < 1.0) {
               _percentageLinearIndicator[index] += 0.001;
             }
           }
           setState(() {});
         }); */
-
       } catch (e) {}
     } catch (e) {} finally {
-      setState(() {});
+      setState(() {
+        _isRecording = false;
+      });
     }
   }
 }
