@@ -119,8 +119,10 @@ class _NewConfigState extends State<NewConfig> {
                                       FileTileSelectMode.wholeTile,
                                 );
                                 if (path.isNotEmpty) {
-                                  _hexFile.text = path.split("\\").last;
+                                  _hexFile.text = path /* .split("\\").last */;
                                   _reference.text = _hexFile.text
+                                      .split("\\")
+                                      .last
                                       .split(".")
                                       .first
                                       .toUpperCase();

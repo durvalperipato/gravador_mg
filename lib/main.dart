@@ -273,13 +273,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         });
       });
 
-      try {
-        if (config.isNotEmpty) {
-          config['config'].values.forEach((element) {
-            element['color'] = Colors.yellow[200];
-            Shell shell = Shell(
-              verbose: false,
-            );
+      if (config.isNotEmpty) {
+        config['config'].values.forEach((element) {
+          element['color'] = Colors.yellow[200];
+          Shell shell = Shell(
+            verbose: false,
+          );
+          try {
             shell.run(element['command']).then((process) {
               process.outLines.forEach((elementProcess) {
                 if (elementProcess.contains('?')) {
@@ -290,27 +290,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   setState(() {});
                 }
               });
+            }, onError: (error) {
+              element['color'] = Colors.red[200];
+              setState(() {});
             });
-          });
-        }
-
-        /* Timer.periodic(Duration(milliseconds: 200), (timer) {
-          for (int index = 0;
-              index < _percentageLinearIndicator.length;
-              index++) {
-            if (_percentageLinearIndicator[index] >= 1.0) {
-              timer.cancel();
-            } else if (_percentageLinearIndicator[index] >= 0 &&
-                _percentageLinearIndicator[index] < 0.5) {
-              _percentageLinearIndicator[index] += 0.05;
-            } else if (_percentageLinearIndicator[index] >= 0.5 &&
-                _percentageLinearIndicator[index] < 1.0) {
-              _percentageLinearIndicator[index] += 0.001;
-            }
-          }
-          setState(() {});
-        }); */
-      } catch (e) {}
+          } catch (e) {}
+        });
+      }
     } catch (e) {} finally {
       setState(() {
         _isRecording = false;
