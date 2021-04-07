@@ -148,17 +148,17 @@ class _NewConfigState extends State<NewConfig> {
                                   builder: (context) => AlertDialog(
                                     content: Container(
                                       height: 120,
-                                      width: 150,
+                                      width: 280,
                                       child: Row(
                                         children: [
                                           Container(
-                                              height: 30,
-                                              width: 80,
+                                              height: 80,
+                                              width: 180,
                                               child: Text(
                                                   'Digite o diretório raiz: ')),
                                           Container(
-                                            height: 30,
-                                            width: 50,
+                                            height: 80,
+                                            width: 80,
                                             child: TextField(
                                               autofocus: true,
                                               onSubmitted: (value) =>
@@ -176,6 +176,8 @@ class _NewConfigState extends State<NewConfig> {
                                   } catch (e) {
                                     dir = Directory('N:\\');
                                   }
+                                } else {
+                                  dir = Directory('N:\\');
                                 }
 
                                 String path = await FilesystemPicker.open(
