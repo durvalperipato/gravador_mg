@@ -1,4 +1,4 @@
-name: Gravador_MG
+name: gravador_mg
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -31,6 +31,7 @@ dependencies:
   filesystem_picker: ^1.0.4
   process_run: ^0.12.1
   file: ^6.1.0
+ 
 
 dev_dependencies:
   flutter_test:

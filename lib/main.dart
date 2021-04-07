@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:gravador_mg/variables.dart';
 import 'package:flutter/material.dart';
-import 'package:Gravador_MG/new_config.dart';
+import 'package:gravador_mg/new_config.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:process_run/shell.dart';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
@@ -43,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<Widget> _linearProgressWidget = [];
 
   TextEditingController _controllerCP = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
   Map config = {};
 
@@ -55,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     _isRecording = false;
+
     super.initState();
   }
 
@@ -68,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         autofocus: true,
         focusNode: _recordFocusNode,
         onKey: (value) {
-          if (value.data.logicalKey.debugName == "Enter" &&
+          if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
               _isRecording == false) {
             _isRecording = true;
             _recordDevice();
@@ -84,11 +88,59 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 child: Row(
                   children: [
                     ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => NewConfig(),
+                      onPressed: () => {
+                        _passwordController.clear(),
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            content: Container(
+                              height: 120,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text('SENHA'),
+                                  TextFormField(
+                                    autofocus: true,
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    onEditingComplete: () => {
+                                      if (_passwordController.text ==
+                                          passwordConfig)
+                                        {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => NewConfig(),
+                                            ),
+                                          ),
+                                        },
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('Voltar'),
+                              ),
+                              TextButton(
+                                onPressed: () => {
+                                  if (_passwordController.text == 'mgakt123')
+                                    {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => NewConfig(),
+                                        ),
+                                      ),
+                                    },
+                                },
+                                child: Text('Confirmar'),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      },
                       child: Text('Configuração'),
                     ),
                     SizedBox(

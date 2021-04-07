@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:Gravador_MG/config.dart';
-import 'package:Gravador_MG/variables.dart';
+import 'package:gravador_mg/config.dart';
+import 'package:gravador_mg/variables.dart';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
 
@@ -29,6 +29,10 @@ class _NewConfigState extends State<NewConfig> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () =>
+                Navigator.popUntil(context, (route) => route.isFirst)),
         title: Text('Nova Configuração'),
       ),
       body: Padding(
@@ -106,7 +110,7 @@ class _NewConfigState extends State<NewConfig> {
                             width: 150,
                             child: TextFormField(
                               onTap: () async {
-                                Directory dir = Directory('C:\\');
+                                Directory dir = Directory('N:\\');
 
                                 String path = await FilesystemPicker.open(
                                   title: 'Carregar Programa',
