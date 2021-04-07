@@ -7,6 +7,7 @@ import 'package:gravador_mg/config.dart';
 import 'package:gravador_mg/variables.dart';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
+import 'package:process_run/shell.dart';
 
 class NewConfig extends StatefulWidget {
   @override
@@ -88,6 +89,37 @@ class _NewConfigState extends State<NewConfig> {
                               },
                             ),
                           ),
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: TextButton(
+                                onPressed: () {
+                                  Shell shell = Shell(verbose: true);
+                                  int index = 1;
+                                  slots.clear();
+                                  shell
+                                      .run('chgport')
+                                      .then(
+                                          (process) => process.outLines
+                                                  .forEach((element) {
+                                                if (element.contains('Silab')) {
+                                                  _lengthSlots.text =
+                                                      index.toString();
+                                                  slots['SLOT $index'] = {
+                                                    'port':
+                                                        element.substring(0, 4),
+                                                    'active': true,
+                                                  };
+                                                  index++;
+                                                }
+                                              }),
+                                          onError: (onError) {})
+                                      .whenComplete(() {
+                                    setState(() {});
+                                  });
+                                },
+                                child: Text('Verificar Portas')),
+                          ),
                         ],
                       ),
                     ),
@@ -110,6 +142,10 @@ class _NewConfigState extends State<NewConfig> {
                             width: 150,
                             child: TextFormField(
                               onTap: () async {
+                                var result = await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(),
+                                );
                                 Directory dir = Directory('N:\\');
 
                                 String path = await FilesystemPicker.open(

@@ -47,6 +47,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   TextEditingController _controllerCP = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
+  GlobalKey<FormState> _formKey = GlobalKey();
+
   Map config = {};
 
   String message = '';
@@ -100,21 +102,28 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   Text('SENHA'),
-                                  TextFormField(
-                                    autofocus: true,
-                                    controller: _passwordController,
-                                    obscureText: true,
-                                    onEditingComplete: () => {
-                                      if (_passwordController.text ==
-                                          passwordConfig)
-                                        {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => NewConfig(),
+                                  Form(
+                                    key: _formKey,
+                                    child: TextFormField(
+                                      autofocus: true,
+                                      controller: _passwordController,
+                                      obscureText: true,
+                                      validator: (value) =>
+                                          value.compareTo(passwordConfig) == 0
+                                              ? null
+                                              : 'Senha Incorreta',
+                                      onEditingComplete: () => {
+                                        if (_formKey.currentState.validate())
+                                          {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewConfig(),
+                                              ),
                                             ),
-                                          ),
-                                        },
-                                    },
+                                          },
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
@@ -126,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                               ),
                               TextButton(
                                 onPressed: () => {
-                                  if (_passwordController.text == 'mgakt123')
+                                  if (_formKey.currentState.validate())
                                     {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
