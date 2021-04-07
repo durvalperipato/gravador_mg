@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gravador_mg/config.dart';
 import 'package:gravador_mg/variables.dart';
 import 'package:file/file.dart' as file;
@@ -147,22 +148,32 @@ class _NewConfigState extends State<NewConfig> {
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     content: Container(
-                                      height: 120,
+                                      //height: 160,
                                       width: 280,
                                       child: Row(
                                         children: [
                                           Container(
                                               height: 80,
                                               width: 180,
-                                              child: Text(
-                                                  'Digite o diretório raiz: ')),
+                                              child: Center(
+                                                child: Text(
+                                                    'Digite o diretório raiz: '),
+                                              )),
                                           Container(
                                             height: 80,
-                                            width: 80,
-                                            child: TextField(
-                                              autofocus: true,
-                                              onSubmitted: (value) =>
-                                                  Navigator.pop(context, value),
+                                            width: 40,
+                                            child: Center(
+                                              child: TextField(
+                                                maxLength: 1,
+                                                decoration: InputDecoration(
+                                                    counterText: '',
+                                                    border:
+                                                        OutlineInputBorder()),
+                                                autofocus: true,
+                                                onSubmitted: (value) =>
+                                                    Navigator.pop(
+                                                        context, value),
+                                              ),
                                             ),
                                           ),
                                         ],

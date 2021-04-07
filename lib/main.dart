@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:gravador_mg/variables.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -264,9 +266,29 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(element.key),
-                  Text('PORTA: ' + element.value['port']),
-                  Text(message),
+                  Text(
+                    element.key,
+                    style: TextStyle(
+                      fontSize: config['config'].length > 7 &&
+                              config['config'].length < 11
+                          ? 20
+                          : config['config'].length >= 11
+                              ? 10
+                              : 30,
+                    ),
+                  ),
+                  Text(
+                    'PORTA\n${element.value['port']}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: config['config'].length > 7 &&
+                              config['config'].length < 11
+                          ? 10
+                          : config['config'].length >= 11
+                              ? 7
+                              : 20,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -281,6 +303,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               margin: const EdgeInsets.symmetric(horizontal: 30),
               width: double.maxFinite,
               child: LinearProgressIndicator(
+                backgroundColor: Colors.blue[100],
                 minHeight: 10,
                 value: _percentageLinearIndicator[index],
               ),
@@ -328,13 +351,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     try {
       setState(() {
         _isRecording = true;
+      });
+
+      if (config.isNotEmpty) {
         _percentageLinearIndicator.forEach((element) {
           _percentageLinearIndicator[
               _percentageLinearIndicator.indexOf(element)] = 0.0;
         });
-      });
-
-      if (config.isNotEmpty) {
+        int index = 0;
         config['config'].values.forEach((element) {
           element['color'] = Colors.yellow[200];
           Shell shell = Shell(
@@ -344,14 +368,21 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             shell.run(element['command']).then((process) {
               process.outLines.forEach((elementProcess) {
                 if (elementProcess.contains('?')) {
+                  _percentageLinearIndicator[index] = 0.0;
+                  index++;
                   element['color'] = Colors.red[200];
+
                   setState(() {});
                 } else if (elementProcess.contains('@@@@@@')) {
+                  _percentageLinearIndicator[index] = 1.0;
+                  index++;
                   element['color'] = Colors.green[200];
                   setState(() {});
                 }
               });
             }, onError: (error) {
+              _percentageLinearIndicator[index] = 0.0;
+              index++;
               element['color'] = Colors.red[200];
               setState(() {});
             });
@@ -359,6 +390,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         });
       }
     } catch (e) {} finally {
+      /* _percentageLinearIndicator.forEach((element) {
+        _percentageLinearIndicator[
+            _percentageLinearIndicator.indexOf(element)] = 1.0;
+      }); */
       setState(() {
         _isRecording = false;
       });
