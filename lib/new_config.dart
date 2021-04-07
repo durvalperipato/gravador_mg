@@ -142,11 +142,41 @@ class _NewConfigState extends State<NewConfig> {
                             width: 150,
                             child: TextFormField(
                               onTap: () async {
-                                var result = await showDialog(
+                                Directory dir;
+                                String result = await showDialog(
                                   context: context,
-                                  builder: (context) => AlertDialog(),
+                                  builder: (context) => AlertDialog(
+                                    content: Container(
+                                      height: 120,
+                                      width: 150,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                              height: 30,
+                                              width: 80,
+                                              child: Text(
+                                                  'Digite o diretório raiz: ')),
+                                          Container(
+                                            height: 30,
+                                            width: 50,
+                                            child: TextField(
+                                              autofocus: true,
+                                              onSubmitted: (value) =>
+                                                  Navigator.pop(context, value),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 );
-                                Directory dir = Directory('N:\\');
+                                if (result != null) {
+                                  try {
+                                    dir = Directory('$result:\\');
+                                  } catch (e) {
+                                    dir = Directory('N:\\');
+                                  }
+                                }
 
                                 String path = await FilesystemPicker.open(
                                   title: 'Carregar Programa',
