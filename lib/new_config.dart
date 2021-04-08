@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:filesystem_picker/filesystem_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:gravador_mg/config.dart';
-import 'package:gravador_mg/variables.dart';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
+import 'package:gravador_mg/config.dart';
+import 'package:gravador_mg/variables.dart';
 import 'package:process_run/shell.dart';
 
 class NewConfig extends StatefulWidget {
@@ -55,7 +54,7 @@ class _NewConfigState extends State<NewConfig> {
                         children: [
                           Container(
                               height: 30,
-                              width: 150,
+                              width: 120,
                               child: Center(
                                 child: Text(
                                   'Slots:',
@@ -63,7 +62,7 @@ class _NewConfigState extends State<NewConfig> {
                               )),
                           Container(
                             height: 30,
-                            width: 150,
+                            width: 250,
                             child: TextFormField(
                               decoration: InputDecoration(
                                   border: OutlineInputBorder(),
@@ -94,30 +93,48 @@ class _NewConfigState extends State<NewConfig> {
                             height: 30,
                             width: 150,
                             child: TextButton(
-                                onPressed: () {
-                                  Shell shell = Shell(verbose: true);
+                                onPressed: () async {
+                                  Shell shell = Shell(verbose: false);
                                   int index = 1;
                                   slots.clear();
-                                  shell
-                                      .run('chgport')
-                                      .then(
-                                          (process) => process.outLines
-                                                  .forEach((element) {
-                                                if (element.contains('Silab')) {
-                                                  _lengthSlots.text =
-                                                      index.toString();
-                                                  slots['SLOT $index'] = {
-                                                    'port':
-                                                        element.substring(0, 4),
-                                                    'active': true,
-                                                  };
-                                                  index++;
-                                                }
-                                              }),
-                                          onError: (onError) {})
-                                      .whenComplete(() {
-                                    setState(() {});
-                                  });
+                                  try {
+                                    await shell.run('chgport').then(
+                                        (process) =>
+                                            process.outLines.forEach((element) {
+                                              if (element.contains('Silab')) {
+                                                _lengthSlots.text =
+                                                    index.toString();
+                                                slots['SLOT $index'] = {
+                                                  'port':
+                                                      element.substring(0, 4),
+                                                  'active': true,
+                                                };
+                                                index++;
+                                              }
+                                            }), onError: (onError) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Não foi possível realizar a configuração'),
+                                        backgroundColor: Colors.red[300],
+                                      ));
+                                    }).whenComplete(() {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Configuração das portas realizada com sucesso'),
+                                        backgroundColor: Colors.green[300],
+                                      ));
+                                      setState(() {});
+                                    });
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          'Não foi possível realizar a configuração'),
+                                      backgroundColor: Colors.red[300],
+                                    ));
+                                  }
                                 },
                                 child: Text('Verificar Portas')),
                           ),
@@ -133,76 +150,40 @@ class _NewConfigState extends State<NewConfig> {
                         children: [
                           Container(
                             height: 30,
-                            width: 150,
+                            width: 120,
                             child: Center(
                               child: Text('Programa:'),
                             ),
                           ),
                           Container(
                             height: 30,
-                            width: 150,
+                            width: 250,
                             child: TextFormField(
-                              onTap: () async {
-                                Directory dir;
-                                String result = await showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    content: Container(
-                                      //height: 160,
-                                      width: 280,
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                              height: 80,
-                                              width: 180,
-                                              child: Center(
-                                                child: Text(
-                                                    'Digite o diretório raiz: '),
-                                              )),
-                                          Container(
-                                            height: 80,
-                                            width: 40,
-                                            child: Center(
-                                              child: TextField(
-                                                maxLength: 1,
-                                                decoration: InputDecoration(
-                                                    counterText: '',
-                                                    border:
-                                                        OutlineInputBorder()),
-                                                autofocus: true,
-                                                onSubmitted: (value) =>
-                                                    Navigator.pop(
-                                                        context, value),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                                if (result != null) {
-                                  try {
-                                    dir = Directory('$result:\\');
-                                  } catch (e) {
-                                    dir = Directory('N:\\');
-                                  }
-                                } else {
-                                  dir = Directory('N:\\');
-                                }
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.zero),
+                              textAlign: TextAlign.center,
+                              controller: _hexFile,
+                            ),
+                          ),
+                          Container(
+                            height: 50,
+                            width: 70,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.folder_rounded,
+                                color: Colors.yellow[400],
+                              ),
+                              onPressed: () async {
+                                final typeGroup = XTypeGroup(
+                                    label: 'program', extensions: ['efm8']);
+                                final file = await openFile(
+                                    acceptedTypeGroups: [typeGroup]);
 
-                                String path = await FilesystemPicker.open(
-                                  title: 'Carregar Programa',
-                                  context: context,
-                                  rootDirectory: dir,
-                                  fsType: FilesystemType.file,
-                                  folderIconColor: Colors.teal,
-                                  allowedExtensions: ['.efm8'],
-                                  fileTileSelectMode:
-                                      FileTileSelectMode.wholeTile,
-                                );
-                                if (path.isNotEmpty) {
-                                  _hexFile.text = path /* .split("\\").last */;
+                                if (file.path.isNotEmpty) {
+                                  _hexFile.text =
+                                      file.path /* .split("\\").last */;
                                   _reference.text = _hexFile.text
                                       .split("\\")
                                       .last
@@ -211,13 +192,8 @@ class _NewConfigState extends State<NewConfig> {
                                       .toUpperCase();
                                 }
                               },
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  contentPadding: EdgeInsets.zero),
-                              textAlign: TextAlign.center,
-                              controller: _hexFile,
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),
@@ -230,14 +206,14 @@ class _NewConfigState extends State<NewConfig> {
                         children: [
                           Container(
                             height: 30,
-                            width: 150,
+                            width: 120,
                             child: Center(
                               child: Text('Referência:'),
                             ),
                           ),
                           Container(
                             height: 30,
-                            width: 150,
+                            width: 250,
                             child: TextFormField(
                               readOnly: true,
                               decoration: InputDecoration(
@@ -250,11 +226,13 @@ class _NewConfigState extends State<NewConfig> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Flexible(
                       flex: 2,
                       child: Container(
-                        width: 300,
+                        width: 370,
                         child: ElevatedButton(
                           onPressed: () {
                             if (/* _formKey.currentState.validate() */ _hexFile

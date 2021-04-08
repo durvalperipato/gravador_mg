@@ -1,16 +1,14 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
-import 'package:gravador_mg/variables.dart';
-import 'package:flutter/material.dart';
-import 'package:gravador_mg/new_config.dart';
-import 'package:filesystem_picker/filesystem_picker.dart';
-import 'package:flutter/services.dart';
-import 'package:process_run/shell.dart';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
+import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gravador_mg/new_config.dart';
+import 'package:gravador_mg/variables.dart';
+import 'package:process_run/shell.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,9 +40,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  List<double> _percentageLinearIndicator = [];
   List<Widget> _slotsWidget = [];
-  List<Widget> _linearProgressWidget = [];
+  List<bool> _recording = [];
 
   TextEditingController _controllerCP = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -78,7 +75,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         onKey: (value) {
           if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
               _isRecording == false) {
-            _isRecording = true;
             _recordDevice();
           }
         },
@@ -196,15 +192,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       children: containerSlots),
                 ),
               ),
-              Flexible(
-                flex: 2,
-                child: Container(
-                  height: 100,
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: _linearProgressWidget),
-                ),
+              SizedBox(
+                height: 80,
               ),
               Flexible(
                 flex: 2,
@@ -217,13 +206,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         elevation: MaterialStateProperty.all(10),
                       ),
                       onPressed: _isRecording ? null : () => _recordDevice(),
-                      child: Text('GRAVAR',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            letterSpacing: 40,
-                          )),
+                      child: _isRecording
+                          ? CircularProgressIndicator(
+                              backgroundColor: Colors.blue[900],
+                            )
+                          : Text('GRAVAR',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                letterSpacing: 40,
+                              )),
                     ),
                   ),
                 ),
@@ -237,10 +230,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   List<Widget> get containerSlots {
     _slotsWidget.clear();
-    _linearProgressWidget.clear();
+    _recording.clear();
     if (config.isNotEmpty) {
-      int index = 0;
       config['config'].entries.forEach((element) {
+        _recording.add(false);
         _slotsWidget.add(
           Flexible(
             flex: 2,
@@ -294,23 +287,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ),
           ),
         );
-        _percentageLinearIndicator.add(0.0);
-
-        _linearProgressWidget.add(
-          Flexible(
-            flex: 2,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 30),
-              width: double.maxFinite,
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.blue[100],
-                minHeight: 10,
-                value: _percentageLinearIndicator[index],
-              ),
-            ),
-          ),
-        );
-        index++;
       });
     }
 
@@ -349,16 +325,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   _recordDevice() async {
     try {
-      setState(() {
-        _isRecording = true;
-      });
-
       if (config.isNotEmpty) {
-        _percentageLinearIndicator.forEach((element) {
-          _percentageLinearIndicator[
-              _percentageLinearIndicator.indexOf(element)] = 0.0;
+        setState(() {
+          _isRecording = true;
         });
         int index = 0;
+        int length = 0;
         config['config'].values.forEach((element) {
           element['color'] = Colors.yellow[200];
           Shell shell = Shell(
@@ -368,32 +340,42 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             shell.run(element['command']).then((process) {
               process.outLines.forEach((elementProcess) {
                 if (elementProcess.contains('?')) {
-                  _percentageLinearIndicator[index] = 0.0;
+                  _recording[index] = true;
                   index++;
                   element['color'] = Colors.red[200];
-
                   setState(() {});
                 } else if (elementProcess.contains('@@@@@@')) {
-                  _percentageLinearIndicator[index] = 1.0;
+                  _recording[index] = true;
                   index++;
                   element['color'] = Colors.green[200];
                   setState(() {});
                 }
               });
             }, onError: (error) {
-              _percentageLinearIndicator[index] = 0.0;
-              index++;
               element['color'] = Colors.red[200];
+              _recording[index] = true;
+              index++;
               setState(() {});
+            }).whenComplete(() {
+              _recording.forEach((element) {
+                if (element) {
+                  length += 1;
+                  if (length == _recording.length) {
+                    setState(() {
+                      _isRecording = false;
+                    });
+                  }
+                }
+              });
             });
-          } catch (e) {}
+          } catch (e) {
+            setState(() {
+              _isRecording = false;
+            });
+          }
         });
       }
-    } catch (e) {} finally {
-      /* _percentageLinearIndicator.forEach((element) {
-        _percentageLinearIndicator[
-            _percentageLinearIndicator.indexOf(element)] = 1.0;
-      }); */
+    } catch (e) {
       setState(() {
         _isRecording = false;
       });
