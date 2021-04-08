@@ -317,6 +317,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         element['color'] = Colors.grey[300];
         element['command'] =
             '''efm8load.exe -p ${element['port']} -b 115200 $_hex''';
+        element['port'] = element['port'];
+        element['hex'] = _hex;
       });
       _controllerCP.text = _ref;
       setState(() {});
@@ -331,13 +333,50 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         });
         int index = 0;
         int length = 0;
-        config['config'].values.forEach((element) {
+        config['config'].values.forEach((element) async {
           element['color'] = Colors.yellow[200];
           Shell shell = Shell(
             verbose: false,
           );
+
           try {
-            shell.run(element['command']).then((process) {
+            Process.run(
+              'efm8load.lnk',
+              ['-p', '${element['port']}', element['hex']],
+            ).then((process) {
+              process.outLines.forEach((elementProcess) {
+                if (elementProcess.contains('?')) {
+                  _recording[index] = true;
+                  index++;
+                  element['color'] = Colors.red[200];
+                  setState(() {});
+                } else if (elementProcess.contains('@@@@@@')) {
+                  _recording[index] = true;
+                  index++;
+                  element['color'] = Colors.green[200];
+                  setState(() {});
+                }
+              });
+            }, onError: (error) {
+              print(error);
+              element['color'] = Colors.red[200];
+              _recording[index] = true;
+              index++;
+              setState(() {});
+            }).whenComplete(() {
+              _recording.forEach((element) {
+                if (element) {
+                  length += 1;
+                  if (length == _recording.length) {
+                    setState(() {
+                      _isRecording = false;
+                    });
+                  }
+                }
+              });
+            });
+
+            /* shell.run(element['command']).then((process) {
               process.outLines.forEach((elementProcess) {
                 if (elementProcess.contains('?')) {
                   _recording[index] = true;
@@ -367,7 +406,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   }
                 }
               });
-            });
+            }); */
           } catch (e) {
             setState(() {
               _isRecording = false;
