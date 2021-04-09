@@ -292,52 +292,65 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         _slotsWidget.add(
           Flexible(
             flex: 2,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 30),
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                      offset: Offset(2, 2),
-                      color: Colors.black87,
-                      blurRadius: 2),
-                  BoxShadow(
-                      offset: Offset(-2, -2),
-                      color: Colors.white,
-                      blurRadius: 2),
-                ],
-                borderRadius: BorderRadius.circular(20),
-                color: element.value['active']
-                    ? element.value['color']
-                    : Colors.grey[400],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    element.key,
-                    style: TextStyle(
-                      fontSize: config['config'].length > 7 &&
-                              config['config'].length < 11
-                          ? 20
-                          : config['config'].length >= 11
-                              ? 10
-                              : 30,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  element.value['active'] = !element.value['active'];
+                });
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 30),
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                        offset: Offset(2, 2),
+                        color: Colors.black87,
+                        blurRadius: 2),
+                    BoxShadow(
+                        offset: Offset(-2, -2),
+                        color: Colors.white,
+                        blurRadius: 2),
+                  ],
+                  borderRadius: BorderRadius.circular(20),
+                  color: element.value['active']
+                      ? element.value['color']
+                      : Colors.grey[200],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      element.key,
+                      style: TextStyle(
+                        color: element.value['active']
+                            ? Colors.black
+                            : Colors.grey[400],
+                        fontSize: config['config'].length > 7 &&
+                                config['config'].length < 11
+                            ? 20
+                            : config['config'].length >= 11
+                                ? 10
+                                : 30,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'PORTA\n${element.value['port']}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: config['config'].length > 7 &&
-                              config['config'].length < 11
-                          ? 10
-                          : config['config'].length >= 11
-                              ? 7
-                              : 20,
+                    Text(
+                      'PORTA\n${element.value['port']}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: element.value['active']
+                            ? Colors.black
+                            : Colors.grey[400],
+                        fontSize: config['config'].length > 7 &&
+                                config['config'].length < 11
+                            ? 10
+                            : config['config'].length >= 11
+                                ? 7
+                                : 20,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -363,20 +376,21 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       allowedExtensions: ['.json'],
       fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
-    if (path.isNotEmpty) {
-      File _file = File(path);
-      config = jsonDecode(_file.readAsStringSync());
-      String _hex = config['hex'];
-      String _ref = config['ref'];
-      config['config'].values.forEach((element) {
-        element['color'] = Colors.grey[400];
-        element['command'] =
-            '''efm8load.exe -p ${element['port']} -b 115200 $_hex''';
-        element['port'] = element['port'];
-        element['hex'] = _hex;
-      });
-      _controllerCP.text = _ref;
-      setState(() {});
+    if (path != null) {
+      if (path.isNotEmpty) {
+        File _file = File(path);
+        config = jsonDecode(_file.readAsStringSync());
+        String _hex = config['hex'];
+        String _ref = config['ref'];
+        config['config'].values.forEach((element) {
+          element['color'] = Colors.grey[400];
+
+          element['port'] = element['port'];
+          element['hex'] = _hex;
+        });
+        _controllerCP.text = _ref;
+        setState(() {});
+      }
     }
   }
 
@@ -389,80 +403,53 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         int index = 0;
         int length = 0;
         config['config'].values.forEach((element) async {
-          element['color'] = Colors.yellow[200];
+          if (element['active']) {
+            element['color'] = Colors.yellow[200];
 
-          try {
-            Process.run(
-              'efm8load.lnk',
-              ['-p', '${element['port']}', element['hex']],
-            ).then((process) {
-              process.outLines.forEach((elementProcess) {
-                if (elementProcess.contains('?')) {
-                  _recording[index] = true;
-                  index++;
-                  element['color'] = Colors.red[200];
-                  setState(() {});
-                } else if (elementProcess.contains('@@@@@@')) {
-                  _recording[index] = true;
-                  index++;
-                  element['color'] = Colors.green[200];
-                  setState(() {});
-                }
-              });
-            }, onError: (error) {
-              print(error);
-              element['color'] = Colors.red[200];
-              _recording[index] = true;
-              index++;
-              setState(() {});
-            }).whenComplete(() {
-              _recording.forEach((element) {
-                if (element) {
-                  length += 1;
-                  if (length == _recording.length) {
-                    setState(() {
-                      _isRecording = false;
-                    });
+            try {
+              Process.run(
+                'efm8load.exe',
+                ['-p', '${element['port']}', element['hex']],
+              ).then((process) {
+                process.outLines.forEach((elementProcess) {
+                  if (elementProcess.contains('?')) {
+                    _recording[index] = true;
+                    index++;
+                    element['color'] = Colors.red[200];
+                    setState(() {});
+                  } else if (elementProcess.contains('@@@@@@')) {
+                    _recording[index] = true;
+                    index++;
+                    element['color'] = Colors.green[200];
+                    setState(() {});
                   }
-                }
-              });
-            });
-
-            /* shell.run(element['command']).then((process) {
-              process.outLines.forEach((elementProcess) {
-                if (elementProcess.contains('?')) {
-                  _recording[index] = true;
-                  index++;
-                  element['color'] = Colors.red[200];
-                  setState(() {});
-                } else if (elementProcess.contains('@@@@@@')) {
-                  _recording[index] = true;
-                  index++;
-                  element['color'] = Colors.green[200];
-                  setState(() {});
-                }
-              });
-            }, onError: (error) {
-              element['color'] = Colors.red[200];
-              _recording[index] = true;
-              index++;
-              setState(() {});
-            }).whenComplete(() {
-              _recording.forEach((element) {
-                if (element) {
-                  length += 1;
-                  if (length == _recording.length) {
-                    setState(() {
-                      _isRecording = false;
-                    });
+                });
+              }, onError: (error) {
+                element['color'] = Colors.red[200];
+                _recording[index] = true;
+                index++;
+                setState(() {});
+              }).whenComplete(() {
+                _recording.forEach((element) {
+                  if (element) {
+                    length += 1;
+                    if (length == _recording.length) {
+                      setState(() {
+                        _isRecording = false;
+                      });
+                    }
                   }
-                }
+                });
               });
-            }); */
-          } catch (e) {
-            setState(() {
-              _isRecording = false;
-            });
+            } catch (e) {
+              setState(() {
+                _isRecording = false;
+              });
+            }
+          } else {
+            _recording[index] = true;
+            index++;
+            length++;
           }
         });
       }

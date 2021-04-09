@@ -95,42 +95,10 @@ class _NewConfigState extends State<NewConfig> {
                             width: 150,
                             child: TextButton(
                                 onPressed: () async {
-                                  //Shell shell = Shell(verbose: false);
                                   int index = 1;
                                   slots.clear();
                                   try {
-                                    await Process.run('cmd.exe', ['chgport'])
-                                        .then(
-                                            (process) => process.outLines
-                                                    .forEach((element) {
-                                                  if (element
-                                                      .contains('Silab')) {
-                                                    _lengthSlots.text =
-                                                        index.toString();
-                                                    slots['SLOT $index'] = {
-                                                      'port': element.substring(
-                                                          0, 4),
-                                                      'active': true,
-                                                    };
-                                                    index++;
-                                                  }
-                                                }), onError: (onError) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            'Não foi possível realizar a configuração'),
-                                        backgroundColor: Colors.red[300],
-                                      ));
-                                    }).whenComplete(() {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            'Configuração das portas realizada com sucesso'),
-                                        backgroundColor: Colors.green[300],
-                                      ));
-                                      setState(() {});
-                                    });
-                                    /* await shell.run('chgport').then(
+                                    await Process.run('chgport', []).then(
                                         (process) =>
                                             process.outLines.forEach((element) {
                                               if (element.contains('Silab')) {
@@ -158,7 +126,7 @@ class _NewConfigState extends State<NewConfig> {
                                         backgroundColor: Colors.green[300],
                                       ));
                                       setState(() {});
-                                    }); */
+                                    });
                                   } catch (e) {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
