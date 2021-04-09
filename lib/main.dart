@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gravador_mg/new_config.dart';
 import 'package:gravador_mg/variables.dart';
-import 'package:process_run/shell.dart';
 
 void main() {
   runApp(MyApp());
@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             Colors.grey[300],
             Colors.grey[300],
             Colors.grey[200],
-            Colors.grey[400],
+            Colors.grey[200],
             Colors.grey[100],
           ],
           end: Alignment.bottomCenter,
@@ -341,7 +341,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                             : Colors.grey[400],
                         fontSize: config['config'].length > 7 &&
                                 config['config'].length < 11
-                            ? 20
+                            ? 15
                             : config['config'].length >= 11
                                 ? 10
                                 : 30,
@@ -411,11 +411,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (!config['config']
         .values
         .every((element) => element['active'] == false)) {
+      setState(() {
+        _isRecording = true;
+      });
       try {
         if (config.isNotEmpty) {
-          setState(() {
-            _isRecording = true;
-          });
           int index = 0;
           int length = 0;
           config['config'].values.forEach((element) async {
@@ -427,19 +427,24 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   'efm8load.exe',
                   ['-p', '${element['port']}', element['hex']],
                 ).then((process) {
-                  process.outLines.forEach((elementProcess) {
-                    if (elementProcess.contains('?')) {
+                  if (process.exitCode != 0) {
+                    _recording[index] = true;
+                    index++;
+                    element['color'] = Colors.red[200];
+                    setState(() {});
+                  } else {
+                    if (process.stdout.contains('?')) {
                       _recording[index] = true;
                       index++;
                       element['color'] = Colors.red[200];
                       setState(() {});
-                    } else if (elementProcess.contains('@@@@@@')) {
+                    } else if (process.stdout.contains('@@@@@@')) {
                       _recording[index] = true;
                       index++;
                       element['color'] = Colors.green[200];
                       setState(() {});
                     }
-                  });
+                  }
                 }, onError: (error) {
                   element['color'] = Colors.red[200];
                   _recording[index] = true;

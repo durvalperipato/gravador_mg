@@ -6,7 +6,6 @@ import 'package:file/local.dart' as local;
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/config.dart';
 import 'package:gravador_mg/variables.dart';
-import 'package:process_run/shell.dart';
 
 import 'package:filepicker_windows/filepicker_windows.dart';
 
@@ -95,23 +94,26 @@ class _NewConfigState extends State<NewConfig> {
                             width: 150,
                             child: TextButton(
                                 onPressed: () async {
-                                  int index = 1;
+                                  int index = 0;
                                   slots.clear();
                                   try {
                                     await Process.run('chgport', []).then(
-                                        (process) =>
-                                            process.outLines.forEach((element) {
-                                              if (element.contains('Silab')) {
-                                                _lengthSlots.text =
-                                                    index.toString();
-                                                slots['SLOT $index'] = {
-                                                  'port':
-                                                      element.substring(0, 4),
-                                                  'active': true,
-                                                };
-                                                index++;
-                                              }
-                                            }), onError: (onError) {
+                                        (process) {
+                                      List<String> _ports = [];
+                                      _ports = process.stdout.split('\n');
+                                      _lengthSlots.text = index.toString();
+                                      _ports
+                                          .where((element) =>
+                                              element.contains('Silab'))
+                                          .forEach((element) {
+                                        index++;
+                                        slots['SLOT $index'] = {
+                                          'port': element.split(" ").first,
+                                          'active': true,
+                                        };
+                                        _lengthSlots.text = index.toString();
+                                      });
+                                    }, onError: (onError) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                         content: Text(
