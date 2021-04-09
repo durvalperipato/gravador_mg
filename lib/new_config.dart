@@ -175,7 +175,7 @@ class _NewConfigState extends State<NewConfig> {
                             child: IconButton(
                               icon: Icon(
                                 Icons.folder_rounded,
-                                color: Colors.yellow[400],
+                                color: Colors.yellow[600],
                               ),
                               onPressed: () {
                                 final result = OpenFilePicker()

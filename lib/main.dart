@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -102,10 +101,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                   autofocus: true,
                                   controller: _passwordController,
                                   obscureText: true,
-                                  validator: (value) =>
-                                      value.compareTo(passwordConfig) == 0
-                                          ? null
-                                          : 'Senha Incorreta',
+                                  validator: (value) => verifyPassword(
+                                          value) /* value.compareTo(passwordConfig) == 0 */
+                                      ? null
+                                      : 'Senha Incorreta',
                                   onEditingComplete: () => {
                                     if (_formKey.currentState.validate())
                                       {

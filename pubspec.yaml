@@ -31,6 +31,7 @@ dependencies:
   filesystem_picker: ^1.0.4
   file: ^6.1.0
   filepicker_windows: ^2.0.0
+  crypto: ^3.0.1
  
 
 dev_dependencies:
