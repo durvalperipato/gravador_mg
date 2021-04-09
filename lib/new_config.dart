@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/config.dart';
 import 'package:gravador_mg/variables.dart';
 import 'package:process_run/shell.dart';
+
+import 'package:filepicker_windows/filepicker_windows.dart';
 
 class NewConfig extends StatefulWidget {
   @override
@@ -94,7 +95,7 @@ class _NewConfigState extends State<NewConfig> {
                             width: 150,
                             child: TextButton(
                                 onPressed: () async {
-                                  Shell shell = Shell(verbose: false);
+                                  //Shell shell = Shell(verbose: false);
                                   int index = 1;
                                   slots.clear();
                                   try {
@@ -206,21 +207,25 @@ class _NewConfigState extends State<NewConfig> {
                                 Icons.folder_rounded,
                                 color: Colors.yellow[400],
                               ),
-                              onPressed: () async {
-                                final typeGroup = XTypeGroup(
-                                    label: 'program', extensions: ['efm8']);
-                                final file = await openFile(
-                                    acceptedTypeGroups: [typeGroup]);
-
-                                if (file.path.isNotEmpty) {
-                                  _hexFile.text =
-                                      file.path /* .split("\\").last */;
-                                  _reference.text = _hexFile.text
-                                      .split("\\")
-                                      .last
-                                      .split(".")
-                                      .first
-                                      .toUpperCase();
+                              onPressed: () {
+                                final result = OpenFilePicker()
+                                  ..defaultExtension = 'efm8'
+                                  ..filterSpecification = {
+                                    'Program (*.efm8)': '*.efm8'
+                                  }
+                                  ..title = 'Selecione o arquivo';
+                                final file = result.getFile();
+                                if (file != null) {
+                                  if (file.path.isNotEmpty) {
+                                    _hexFile.text =
+                                        file.path /* .split("\\").last */;
+                                    _reference.text = _hexFile.text
+                                        .split("\\")
+                                        .last
+                                        .split(".")
+                                        .first
+                                        .toUpperCase();
+                                  }
                                 }
                               },
                             ),

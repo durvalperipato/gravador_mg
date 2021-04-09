@@ -59,169 +59,224 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     _isRecording = false;
-
     super.initState();
   }
 
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: Text(widget.title),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey[300],
+            Colors.grey[300],
+            Colors.grey[200],
+            Colors.grey[400],
+          ],
+          end: Alignment.bottomCenter,
+          begin: Alignment.topCenter,
+        ),
       ),
-      body: RawKeyboardListener(
-        autofocus: true,
-        focusNode: _recordFocusNode,
-        onKey: (value) {
-          if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
-              _isRecording == false) {
-            _recordDevice();
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(
-                flex: 1,
-                child: Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => {
-                        _passwordController.clear(),
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            content: Container(
-                              height: 120,
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text('SENHA'),
-                                  Form(
-                                    key: _formKey,
-                                    child: TextFormField(
-                                      autofocus: true,
-                                      controller: _passwordController,
-                                      obscureText: true,
-                                      validator: (value) =>
-                                          value.compareTo(passwordConfig) == 0
-                                              ? null
-                                              : 'Senha Incorreta',
-                                      onEditingComplete: () => {
-                                        if (_formKey.currentState.validate())
-                                          {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    NewConfig(),
-                                              ),
-                                            ),
-                                          },
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text('Voltar'),
-                              ),
-                              TextButton(
-                                onPressed: () => {
-                                  if (_formKey.currentState.validate())
-                                    {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => NewConfig(),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          centerTitle: true,
+          actions: [
+            IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  {
+                    _passwordController.clear();
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        content: Container(
+                          height: 120,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text('SENHA'),
+                              Form(
+                                key: _formKey,
+                                child: TextFormField(
+                                  autofocus: true,
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  validator: (value) =>
+                                      value.compareTo(passwordConfig) == 0
+                                          ? null
+                                          : 'Senha Incorreta',
+                                  onEditingComplete: () => {
+                                    if (_formKey.currentState.validate())
+                                      {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => NewConfig(),
+                                          ),
                                         ),
-                                      ),
-                                    },
-                                },
-                                child: Text('Confirmar'),
+                                      },
+                                  },
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      },
-                      child: Text('Configuração'),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    ElevatedButton(
-                        onPressed: () => _openFile(),
-                        child: Text('Carregar Programa')),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Flexible(
-                      child: TextField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.zero,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Voltar'),
+                          ),
+                          TextButton(
+                            onPressed: () => {
+                              if (_formKey.currentState.validate())
+                                {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => NewConfig(),
+                                    ),
+                                  ),
+                                },
+                            },
+                            child: Text('Confirmar'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                }),
+            SizedBox(
+              width: 30,
+            ),
+          ],
+          title: Text(
+            widget.title,
+            style: TextStyle(color: Colors.white.withOpacity(0.8)),
+          ),
+          backgroundColor: Color.fromRGBO(6, 58, 118, 0.9),
+        ),
+        body: RawKeyboardListener(
+          autofocus: true,
+          focusNode: _recordFocusNode,
+          onKey: (value) {
+            if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
+                _isRecording == false) {
+              _recordDevice();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 30,
+                      ),
+                      Container(
+                        width: 200,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                              elevation: MaterialStateProperty.all(10),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.blue[600])),
+                          onPressed: () => _openFile(),
+                          child: Text(
+                            'Carregar Programa',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                            ),
                           ),
                         ),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                        controller: _controllerCP,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  height: 100,
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: containerSlots),
-                ),
-              ),
-              SizedBox(
-                height: 80,
-              ),
-              Flexible(
-                flex: 2,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 80.0),
-                  child: Container(
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        elevation: MaterialStateProperty.all(10),
+                      SizedBox(
+                        width: 20,
                       ),
-                      onPressed: _isRecording ? null : () => _recordDevice(),
-                      child: _isRecording
-                          ? CircularProgressIndicator(
-                              backgroundColor: Colors.blue[900],
-                            )
-                          : Text('GRAVAR',
+                      Flexible(
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey[300],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black54,
+                                  offset: Offset(-2, -2),
+                                  blurRadius: 2,
+                                ),
+                                BoxShadow(
+                                  color: Colors.white70,
+                                  offset: Offset(2, 2),
+                                  blurRadius: 2,
+                                ),
+                              ]),
+                          child: Center(
+                            child: TextField(
+                              readOnly: true,
+                              decoration: null,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                letterSpacing: 5,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                letterSpacing: 40,
-                              )),
+                              ),
+                              textAlign: TextAlign.center,
+                              controller: _controllerCP,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    height: 100,
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: containerSlots),
+                  ),
+                ),
+                SizedBox(
+                  height: 80,
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 80.0),
+                    child: Container(
+                      height: 60,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          elevation: MaterialStateProperty.all(10),
+                        ),
+                        onPressed: _isRecording ? null : () => _recordDevice(),
+                        child: _isRecording
+                            ? CircularProgressIndicator(
+                                backgroundColor: Colors.blue[900],
+                              )
+                            : Text('GRAVAR',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  letterSpacing: 40,
+                                )),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -254,7 +309,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(20),
                 color: element.value['active']
                     ? element.value['color']
-                    : Colors.grey[300],
+                    : Colors.grey[400],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -314,7 +369,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       String _hex = config['hex'];
       String _ref = config['ref'];
       config['config'].values.forEach((element) {
-        element['color'] = Colors.grey[300];
+        element['color'] = Colors.grey[400];
         element['command'] =
             '''efm8load.exe -p ${element['port']} -b 115200 $_hex''';
         element['port'] = element['port'];
@@ -335,9 +390,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         int length = 0;
         config['config'].values.forEach((element) async {
           element['color'] = Colors.yellow[200];
-          Shell shell = Shell(
-            verbose: false,
-          );
 
           try {
             Process.run(

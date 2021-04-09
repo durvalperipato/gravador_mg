@@ -31,6 +31,7 @@ dependencies:
   filesystem_picker: ^1.0.4
   process_run: ^0.12.1
   file: ^6.1.0
+  filepicker_windows: ^2.0.0
  
 
 dev_dependencies:
@@ -55,8 +56,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - icon/logo_colorful.jpg
+  assets:
+    - images/logo.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
