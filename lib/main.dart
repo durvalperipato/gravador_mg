@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Gravador AKT'),
+      home: MyHomePage(title: 'Gravador MarGirius'),
     );
   }
 }
@@ -71,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             Colors.grey[300],
             Colors.grey[200],
             Colors.grey[400],
+            Colors.grey[100],
           ],
           end: Alignment.bottomCenter,
           begin: Alignment.topCenter,
@@ -163,9 +164,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
                   flex: 1,
@@ -264,15 +266,26 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                             ? CircularProgressIndicator(
                                 backgroundColor: Colors.blue[900],
                               )
-                            : Text('GRAVAR',
+                            : Text(
+                                'GRAVAR',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.8),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
                                   letterSpacing: 40,
-                                )),
+                                ),
+                              ),
                       ),
                     ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'images/logo_colorful.jpg',
+                    height: 80,
+                    width: 200,
+                    filterQuality: FilterQuality.medium,
                   ),
                 ),
               ],
@@ -395,68 +408,72 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   _recordDevice() async {
-    try {
-      if (config.isNotEmpty) {
-        setState(() {
-          _isRecording = true;
-        });
-        int index = 0;
-        int length = 0;
-        config['config'].values.forEach((element) async {
-          if (element['active']) {
-            element['color'] = Colors.yellow[200];
+    if (!config['config']
+        .values
+        .every((element) => element['active'] == false)) {
+      try {
+        if (config.isNotEmpty) {
+          setState(() {
+            _isRecording = true;
+          });
+          int index = 0;
+          int length = 0;
+          config['config'].values.forEach((element) async {
+            if (element['active']) {
+              element['color'] = Colors.yellow[200];
 
-            try {
-              Process.run(
-                'efm8load.exe',
-                ['-p', '${element['port']}', element['hex']],
-              ).then((process) {
-                process.outLines.forEach((elementProcess) {
-                  if (elementProcess.contains('?')) {
-                    _recording[index] = true;
-                    index++;
-                    element['color'] = Colors.red[200];
-                    setState(() {});
-                  } else if (elementProcess.contains('@@@@@@')) {
-                    _recording[index] = true;
-                    index++;
-                    element['color'] = Colors.green[200];
-                    setState(() {});
-                  }
-                });
-              }, onError: (error) {
-                element['color'] = Colors.red[200];
-                _recording[index] = true;
-                index++;
-                setState(() {});
-              }).whenComplete(() {
-                _recording.forEach((element) {
-                  if (element) {
-                    length += 1;
-                    if (length == _recording.length) {
-                      setState(() {
-                        _isRecording = false;
-                      });
+              try {
+                Process.run(
+                  'efm8load.exe',
+                  ['-p', '${element['port']}', element['hex']],
+                ).then((process) {
+                  process.outLines.forEach((elementProcess) {
+                    if (elementProcess.contains('?')) {
+                      _recording[index] = true;
+                      index++;
+                      element['color'] = Colors.red[200];
+                      setState(() {});
+                    } else if (elementProcess.contains('@@@@@@')) {
+                      _recording[index] = true;
+                      index++;
+                      element['color'] = Colors.green[200];
+                      setState(() {});
                     }
-                  }
+                  });
+                }, onError: (error) {
+                  element['color'] = Colors.red[200];
+                  _recording[index] = true;
+                  index++;
+                  setState(() {});
+                }).whenComplete(() {
+                  _recording.forEach((element) {
+                    if (element) {
+                      length += 1;
+                      if (length == _recording.length) {
+                        setState(() {
+                          _isRecording = false;
+                        });
+                      }
+                    }
+                  });
                 });
-              });
-            } catch (e) {
-              setState(() {
-                _isRecording = false;
-              });
+              } catch (e) {
+                setState(() {
+                  _isRecording = false;
+                });
+              }
+            } else {
+              _recording[index] = true;
+              index++;
+              length++;
             }
-          } else {
-            _recording[index] = true;
-            index++;
-            length++;
-          }
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _isRecording = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _isRecording = false;
-      });
     }
   }
 }
