@@ -5,7 +5,7 @@ import 'package:file/file.dart' as file;
 import 'package:file/local.dart' as local;
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/config.dart';
-import 'package:gravador_mg/variables.dart';
+import 'package:gravador_mg/variables_functions.dart';
 
 import 'package:filepicker_windows/filepicker_windows.dart';
 
