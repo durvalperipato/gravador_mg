@@ -378,6 +378,21 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 : 20,
                       ),
                     ),
+                    Text(
+                      element.value['active'] ? 'ON' : 'OFF',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: element.value['active']
+                            ? Colors.black
+                            : Colors.grey[400],
+                        fontSize: config['config'].length > 7 &&
+                                config['config'].length < 11
+                            ? 10
+                            : config['config'].length >= 11
+                                ? 8
+                                : 20,
+                      ),
+                    ),
                   ],
                 ),
               ),
