@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:file/file.dart' as file;
-import 'package:file/local.dart' as local;
+import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/config.dart';
 import 'package:gravador_mg/variables_functions.dart';
-
-import 'package:filepicker_windows/filepicker_windows.dart';
 
 class NewConfig extends StatefulWidget {
   @override

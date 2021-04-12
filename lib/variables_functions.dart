@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart';
 import 'package:crypto/crypto.dart';
@@ -5,6 +7,7 @@ import 'dart:io';
 
 final List<String> ports = List.generate(29, (index) => 'COM${index + 1}');
 final Map<String, dynamic> slots = {};
+Map<String, dynamic> config = {};
 
 verifyPassword(String pass) {
   try {

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:file/file.dart' as file;
-import 'package:file/local.dart' as local;
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   GlobalKey<FormState> _formKey = GlobalKey();
 
-  Map config = {};
+  //Map config = {};
 
   String message = '';
 
@@ -419,6 +417,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
     if (path != null) {
       if (path.isNotEmpty) {
+        config.clear();
         File _file = File(path);
         config = jsonDecode(_file.readAsStringSync());
         String _hex = config['hex'];
