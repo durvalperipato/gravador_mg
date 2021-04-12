@@ -45,8 +45,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   GlobalKey<FormState> _formKey = GlobalKey();
 
-  //Map config = {};
-
   String message = '';
 
   bool _isRecording;
@@ -237,6 +235,78 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                               SizedBox(
                                 width: 30,
                               ),
+                              IconButton(
+                                  icon: Icon(Icons.refresh),
+                                  onPressed: config['config'] == null
+                                      ? null
+                                      : () async {
+                                          try {
+                                            int index = 0;
+                                            List<String> _ports = [];
+
+                                            await Process.run('chgport', [])
+                                                .then((process) {
+                                              if (process.stdout.length > 0) {
+                                                _ports =
+                                                    process.stdout.split('\n');
+                                                config['config'] = {};
+                                                _ports
+                                                    .where((element) => element
+                                                        .contains('Silab'))
+                                                    .forEach((element) {
+                                                  print('Entrei');
+
+                                                  index++;
+                                                  config['config']
+                                                      ['SLOT $index'] = {
+                                                    'port': element
+                                                        .split(" ")
+                                                        .first,
+                                                    'active': true,
+                                                    'color': Colors.grey[400],
+                                                  };
+                                                });
+                                              }
+                                            }, onError: (onError) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    'Não foi possível realizar a configuração'),
+                                                backgroundColor:
+                                                    Colors.red[300],
+                                              ));
+                                            }).whenComplete(() {
+                                              if (_ports.length == 0) {
+                                                config['config']
+                                                    .values
+                                                    .forEach((element) {
+                                                  element['active'] = false;
+                                                });
+                                              }
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                content: Text(_ports.length > 0
+                                                    ? 'Configuração das portas realizada com sucesso'
+                                                    : 'Nenhum Dispositivo Conectado'),
+                                                backgroundColor:
+                                                    _ports.length > 0
+                                                        ? Colors.green[300]
+                                                        : Colors.red[300],
+                                              ));
+                                              setState(() {});
+                                            });
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  'Não foi possível realizar a configuração'),
+                                              backgroundColor: Colors.red[300],
+                                            ));
+                                          }
+                                        }),
+                              SizedBox(
+                                width: 30,
+                              ),
                             ],
                           ),
                         ),
@@ -398,6 +468,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
         );
       });
+    } else {
+      _slotsWidget.add(Center(child: Text('NENHUM PROGRAMA SELECIONADO')));
     }
 
     return _slotsWidget;
@@ -420,13 +492,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         config.clear();
         File _file = File(path);
         config = jsonDecode(_file.readAsStringSync());
-        String _hex = config['hex'];
+        //String _hex = config['hex'];
         String _ref = config['ref'];
         config['config'].values.forEach((element) {
           element['color'] = Colors.grey[400];
-
           element['port'] = element['port'];
-          element['hex'] = _hex;
         });
         _controllerCP.text = _ref;
         setState(() {});
@@ -452,7 +522,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               try {
                 Process.run(
                   'efm8load.exe',
-                  ['-p', '${element['port']}', element['hex']],
+                  [
+                    '-p',
+                    '${element['port']}',
+                    config['hex'] /* element['hex'] */
+                  ],
                 ).then((process) {
                   if (process.exitCode != 0) {
                     _recording[index] = true;

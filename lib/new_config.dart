@@ -16,10 +16,12 @@ class _NewConfigState extends State<NewConfig> {
   TextEditingController _reference = TextEditingController();
   TextEditingController _hexFile = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  Map<String, dynamic> slots = {};
 
   @override
   void initState() {
     _lengthSlots = TextEditingController(text: '0');
+
     super.initState();
   }
 
@@ -80,8 +82,9 @@ class _NewConfigState extends State<NewConfig> {
                                       'port': 'COM$index',
                                       'active': true,
                                     };
+
+                                    setState(() {});
                                   }
-                                  setState(() {});
                                 }
                               },
                             ),
@@ -92,6 +95,7 @@ class _NewConfigState extends State<NewConfig> {
                             child: TextButton(
                                 onPressed: () async {
                                   int index = 0;
+
                                   slots.clear();
                                   try {
                                     await Process.run('chgport', []).then(
