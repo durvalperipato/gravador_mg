@@ -246,12 +246,10 @@ class _NewConfigState extends State<NewConfig> {
                                 _reference.text.isNotEmpty &&
                                 _lengthSlots.text.isNotEmpty) {
                               _formKey.currentState.save();
-                              final file.FileSystem fs =
-                                  local.LocalFileSystem();
 
-                              Directory dir = fs.currentDirectory;
-                              File _file = File(dir.path +
-                                  '\\files\\${_reference.text}.json');
+                              Directory dir = filesPath;
+                              File _file =
+                                  File(dir.path + '\\${_reference.text}.json');
 
                               Config _newConfig = Config(slots, _hexFile.text,
                                   _reference.text.toUpperCase());

@@ -7,11 +7,8 @@ final List<String> ports = List.generate(29, (index) => 'COM${index + 1}');
 final Map<String, dynamic> slots = {};
 
 verifyPassword(String pass) {
-  final file.FileSystem fs = LocalFileSystem();
-
   try {
-    Directory dir =
-        fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\conf');
+    Directory dir = confPath;
     File _file = File(dir.path + '\\conf.txt');
 
     if (sha1.convert(pass.codeUnits).toString() == _file.readAsStringSync()) {
@@ -23,8 +20,13 @@ verifyPassword(String pass) {
   }
 }
 
+_getReferenceLocalFileSystem() {
+  file.FileSystem fs = LocalFileSystem();
+  return fs;
+}
+
 Future<Directory> verifyDirectory() async {
-  final file.FileSystem fs = LocalFileSystem();
+  var fs = _getReferenceLocalFileSystem();
   Directory dir =
       fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\conf');
   if (!dir.existsSync()) {
@@ -37,4 +39,18 @@ Future<Directory> verifyDirectory() async {
 
   fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\files');
   return dir.create();
+}
+
+Directory get filesPath {
+  var fs = _getReferenceLocalFileSystem();
+  Directory dir =
+      fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\files');
+  return dir;
+}
+
+Directory get confPath {
+  var fs = _getReferenceLocalFileSystem();
+  Directory dir =
+      fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\conf');
+  return dir;
 }

@@ -406,10 +406,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   _openFile() async {
-    final file.FileSystem fs = local.LocalFileSystem();
-
-    Directory dir = fs.currentDirectory
-        .childDirectory(fs.currentDirectory.path + '\\files');
+    Directory dir = filesPath;
 
     String path = await FilesystemPicker.open(
       title: 'Carregar Programa',
