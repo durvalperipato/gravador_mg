@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'dart:io';
 
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -508,9 +510,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (!config['config']
         .values
         .every((element) => element['active'] == false)) {
-      setState(() {
-        _isRecording = true;
-      });
+      /* setState(() {
+                    _isRecording = true;
+                  }); */
       try {
         if (config.isNotEmpty) {
           int index = 0;
@@ -520,14 +522,19 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               element['color'] = Colors.yellow[200];
 
               try {
-                Process.run(
-                  'efm8load.exe',
+                await Process.run(
+                  /* 'efm8load.exe' */ 'stvp/STVP_CmdLine.exe',
                   [
-                    '-p',
-                    '${element['port']}',
-                    config['hex'] /* element['hex'] */
+                    /* '-p', '${element['port']}', config['hex'] */ '-BoardName=ST-LINK',
+                    '-Port=USB',
+                    '-ProgMode=SWIM',
+                    '-Device=STM8S001J3',
+                    '-Tool_ID=0',
+                    '-no_loop',
+                    '-FileProg=N:\\3_DESENVOLVIMENTO\\Detec_Projeto\\Durval\\Gravador\\files_svtp\\CJ017940.s19'
                   ],
                 ).then((process) {
+                  print(process.stdout);
                   if (process.exitCode != 0) {
                     _recording[index] = true;
                     index++;
@@ -563,6 +570,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     }
                   });
                 });
+                print('Passei');
               } catch (e) {
                 setState(() {
                   _isRecording = false;

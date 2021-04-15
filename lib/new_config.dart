@@ -15,6 +15,7 @@ class _NewConfigState extends State<NewConfig> {
   TextEditingController _lengthSlots = TextEditingController();
   TextEditingController _reference = TextEditingController();
   TextEditingController _hexFile = TextEditingController();
+  TextEditingController _program = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Map<String, dynamic> slots = {};
 
@@ -253,7 +254,7 @@ class _NewConfigState extends State<NewConfig> {
                                   File(dir.path + '\\${_reference.text}.json');
 
                               Config _newConfig = Config(slots, _hexFile.text,
-                                  _reference.text.toUpperCase());
+                                  _reference.text.toUpperCase(), _program.text);
 
                               _file.writeAsStringSync(jsonEncode(_newConfig));
                               ScaffoldMessenger.of(context).showSnackBar(
