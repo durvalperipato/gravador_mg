@@ -570,7 +570,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     }
                   });
                 });
-                print('Passei');
               } catch (e) {
                 setState(() {
                   _isRecording = false;
