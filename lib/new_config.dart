@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:flutter/material.dart';
-import 'package:gravador_mg/config.dart';
+import 'package:gravador_mg/model/config.dart';
 import 'package:gravador_mg/variables_functions.dart';
 
 class NewConfig extends StatefulWidget {
