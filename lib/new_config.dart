@@ -80,7 +80,7 @@ class _NewConfigState extends State<NewConfig> {
                                       index <= _length;
                                       index++) {
                                     slots['SLOT $index'] = {
-                                      'port': 'COM$index',
+                                      'port': 'PORT$index',
                                       'active': true,
                                     };
 
@@ -99,7 +99,35 @@ class _NewConfigState extends State<NewConfig> {
 
                                   slots.clear();
                                   try {
-                                    await Process.run('chgport', []).then(
+                                    List<String> _devicesLocation = [];
+                                    await Process.run(
+                                        "wmic path CIM_LogicalDevice where \"Caption like 'USB Mass Storage Device'\" get DeviceID",
+                                        []).then((process) {
+                                      process.stdout
+                                          .toString()
+                                          .split('\n')
+                                          .forEach((element) {
+                                        if (element.startsWith('USB') &&
+                                            element.contains('PID_3744')) {
+                                          _devicesLocation.add(
+                                              element.split('\\').last.trim());
+                                        }
+                                      });
+                                      _devicesLocation
+                                          .toSet()
+                                          .toList()
+                                          .forEach((element) {
+                                        index++;
+                                        slots['SLOT $index'] = {
+                                          'port':
+                                              'PORT' + element.split('&').last,
+                                          'active': true,
+                                        };
+                                      });
+                                      setState(() {});
+                                    });
+
+                                    /* await Process.run('chgport', []).then(
                                         (process) {
                                       List<String> _ports = [];
                                       _ports = process.stdout.split('\n');
@@ -130,7 +158,7 @@ class _NewConfigState extends State<NewConfig> {
                                         backgroundColor: Colors.green[300],
                                       ));
                                       setState(() {});
-                                    });
+                                    }); */
                                   } catch (e) {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
@@ -324,7 +352,7 @@ class _NewConfigState extends State<NewConfig> {
                                   slots['SLOT ${index + 1}']['port'] = value;
                                 });
                               },
-                              items: ports
+                              items: location //ports
                                   .map((value) => DropdownMenuItem(
                                       value: value, child: Text(value)))
                                   .toList(),

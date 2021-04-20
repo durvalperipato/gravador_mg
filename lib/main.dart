@@ -507,7 +507,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   _recordDevice() async {
-    if (!config['config']
+    /* if (!config['config']
         .values
         .every((element) => element['active'] == false)) {
       /* setState(() {
@@ -534,7 +534,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     '-FileProg=N:\\3_DESENVOLVIMENTO\\Detec_Projeto\\Durval\\Gravador\\files_svtp\\CJ017940.s19'
                   ],
                 ).then((process) {
-                  print(process.stdout);
                   if (process.exitCode != 0) {
                     _recording[index] = true;
                     index++;
@@ -587,6 +586,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           _isRecording = false;
         });
       }
-    }
+    } */
   }
 }
+
+_commandSTProgram() {}
