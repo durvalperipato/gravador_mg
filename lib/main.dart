@@ -1,13 +1,15 @@
-import 'dart:async';
 import 'dart:convert';
-
 import 'dart:io';
 
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gravador_mg/new_config.dart';
-import 'package:gravador_mg/variables_functions.dart';
+import 'package:gravador_mg/utils/variables_functions.dart';
+import 'package:provider/provider.dart';
+
+import 'repository/DirectoryRepository.dart';
+import 'viewmodel/home_page_modelview.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +26,10 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Gravador MarGirius'),
+      home: ChangeNotifierProvider(
+        create: (context) => HomePageViewModel(),
+        child: MyHomePage(title: 'Gravador MarGirius'),
+      ),
     );
   }
 }
@@ -42,8 +47,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<Widget> _slotsWidget = [];
   List<bool> _recording = [];
 
-  TextEditingController _controllerCP = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  //TextEditingController _controllerCP = TextEditingController();
+  //TextEditingController _passwordController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey();
 
@@ -60,184 +65,193 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
-    return FutureBuilder<Directory>(
-        future: verifyDirectory(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.grey[300],
-                    Colors.grey[300],
-                    Colors.grey[200],
-                    Colors.grey[200],
-                    Colors.grey[100],
-                  ],
-                  end: Alignment.bottomCenter,
-                  begin: Alignment.topCenter,
-                ),
-              ),
-              child: Scaffold(
-                backgroundColor: Colors.transparent,
-                appBar: AppBar(
-                  centerTitle: true,
-                  actions: [
-                    IconButton(
-                        icon: Icon(Icons.settings),
-                        onPressed: () {
-                          {
-                            _passwordController.clear();
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                content: Container(
-                                  height: 120,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Text('SENHA'),
-                                      Form(
-                                        key: _formKey,
-                                        child: TextFormField(
-                                          autofocus: true,
-                                          controller: _passwordController,
-                                          obscureText: true,
-                                          validator: (value) =>
-                                              verifyPassword(value)
-                                                  ? null
-                                                  : 'Senha Incorreta',
-                                          onEditingComplete: () => {
-                                            if (_formKey.currentState
-                                                .validate())
-                                              {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        NewConfig(),
-                                                  ),
-                                                ),
+    return Consumer<HomePageViewModel>(
+      builder: (context, homeViewModel, child) {
+        return FutureBuilder<Directory>(
+            future: homeViewModel.verifyDirectory(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.grey[300],
+                        Colors.grey[300],
+                        Colors.grey[200],
+                        Colors.grey[200],
+                        Colors.grey[100],
+                      ],
+                      end: Alignment.bottomCenter,
+                      begin: Alignment.topCenter,
+                    ),
+                  ),
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    appBar: AppBar(
+                      centerTitle: true,
+                      actions: [
+                        IconButton(
+                            icon: Icon(Icons.settings),
+                            onPressed: () {
+                              {
+                                homeViewModel.controllerPassword.clear();
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    content: Container(
+                                      height: 120,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Text('SENHA'),
+                                          Form(
+                                            key: _formKey,
+                                            child: TextFormField(
+                                              autofocus: true,
+                                              controller: homeViewModel
+                                                  .controllerPassword,
+                                              obscureText: true,
+                                              validator: (value) =>
+                                                  homeViewModel
+                                                          .verifyPassword(value)
+                                                      ? null
+                                                      : 'Senha Incorreta',
+                                              onEditingComplete: () => {
+                                                if (_formKey.currentState
+                                                    .validate())
+                                                  {
+                                                    /* Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            NewConfig(),
+                                                      ),
+                                                    ), */
+                                                  },
                                               },
-                                          },
-                                        ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text('Voltar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => {
+                                          if (_formKey.currentState.validate())
+                                            {
+                                              /* Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      NewConfig(),
+                                                ),
+                                              ), */
+                                            },
+                                        },
+                                        child: Text('Confirmar'),
                                       ),
                                     ],
                                   ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('Voltar'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => {
-                                      if (_formKey.currentState.validate())
-                                        {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => NewConfig(),
-                                            ),
-                                          ),
-                                        },
-                                    },
-                                    child: Text('Confirmar'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                        }),
-                    SizedBox(
-                      width: 30,
+                                );
+                              }
+                            }),
+                        SizedBox(
+                          width: 30,
+                        ),
+                      ],
+                      title: Text(
+                        widget.title,
+                        style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                      ),
+                      backgroundColor: Color.fromRGBO(6, 58, 118, 0.9),
                     ),
-                  ],
-                  title: Text(
-                    widget.title,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
-                  ),
-                  backgroundColor: Color.fromRGBO(6, 58, 118, 0.9),
-                ),
-                body: RawKeyboardListener(
-                  autofocus: true,
-                  focusNode: _recordFocusNode,
-                  onKey: (value) {
-                    if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
-                        _isRecording == false) {
-                      _recordDevice();
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 1,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 30,
-                              ),
-                              Container(
-                                width: 200,
-                                height: 50,
-                                child: ElevatedButton(
-                                  style: ButtonStyle(
-                                      elevation: MaterialStateProperty.all(10),
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.blue[600])),
-                                  onPressed: () => _openFile(),
-                                  child: Text(
-                                    'Carregar Programa',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
+                    body: RawKeyboardListener(
+                      autofocus: true,
+                      focusNode: _recordFocusNode,
+                      onKey: (value) {
+                        if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
+                            _isRecording == false) {
+                          _recordDevice();
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 30,
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Flexible(
-                                child: Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.grey[300],
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black54,
-                                          offset: Offset(-2, -2),
-                                          blurRadius: 2,
+                                  Container(
+                                    width: 200,
+                                    height: 50,
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          elevation:
+                                              MaterialStateProperty.all(10),
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.blue[600])),
+                                      onPressed: () => homeViewModel.openFile(
+                                          context, config),
+                                      child: Text(
+                                        'Carregar Programa',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.9),
                                         ),
-                                        BoxShadow(
-                                          color: Colors.white70,
-                                          offset: Offset(2, 2),
-                                          blurRadius: 2,
-                                        ),
-                                      ]),
-                                  child: Center(
-                                    child: TextField(
-                                      readOnly: true,
-                                      decoration: null,
-                                      style: TextStyle(
-                                        letterSpacing: 5,
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.bold,
                                       ),
-                                      textAlign: TextAlign.center,
-                                      controller: _controllerCP,
                                     ),
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 30,
-                              ),
-                              IconButton(
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  Flexible(
+                                    child: Container(
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.grey[300],
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black54,
+                                              offset: Offset(-2, -2),
+                                              blurRadius: 2,
+                                            ),
+                                            BoxShadow(
+                                              color: Colors.white70,
+                                              offset: Offset(2, 2),
+                                              blurRadius: 2,
+                                            ),
+                                          ]),
+                                      child: Center(
+                                        child: TextField(
+                                          readOnly: true,
+                                          decoration: null,
+                                          style: TextStyle(
+                                            letterSpacing: 5,
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          controller:
+                                              homeViewModel.controllerCP,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  /*     IconButton(
                                   icon: Icon(Icons.refresh),
                                   onPressed: config['config'] == null
                                       ? null
@@ -306,80 +320,85 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                             ));
                                           }
                                         }),
-                              SizedBox(
-                                width: 30,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Container(
-                            height: 100,
-                            width: MediaQuery.of(context).size.width,
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: containerSlots),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 80,
-                        ),
-                        Flexible(
-                          flex: 2,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 80.0),
-                            child: Container(
-                              height: 60,
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                  elevation: MaterialStateProperty.all(10),
-                                ),
-                                onPressed:
-                                    _isRecording ? null : () => _recordDevice(),
-                                child: _isRecording
-                                    ? CircularProgressIndicator(
-                                        backgroundColor: Colors.blue[900],
-                                      )
-                                    : Text(
-                                        'GRAVAR',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                          letterSpacing: 40,
-                                        ),
-                                      ),
+                           */
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                height: 100,
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: containerSlots),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 80,
+                            ),
+                            Flexible(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 80.0),
+                                child: Container(
+                                  height: 60,
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      elevation: MaterialStateProperty.all(10),
+                                    ),
+                                    onPressed: _isRecording
+                                        ? null
+                                        : () => _recordDevice(),
+                                    child: _isRecording
+                                        ? CircularProgressIndicator(
+                                            backgroundColor: Colors.blue[900],
+                                          )
+                                        : Text(
+                                            'GRAVAR',
+                                            style: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(0.8),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                              letterSpacing: 40,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Image.asset(
+                                'images/logo_colorful.jpg',
+                                height: 80,
+                                width: 200,
+                                filterQuality: FilterQuality.medium,
+                              ),
+                            ),
+                          ],
                         ),
-                        Align(
-                          alignment: Alignment.center,
-                          child: Image.asset(
-                            'images/logo_colorful.jpg',
-                            height: 80,
-                            width: 200,
-                            filterQuality: FilterQuality.medium,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        });
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            });
+      },
+    );
   }
 
   List<Widget> get containerSlots {
@@ -477,35 +496,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     return _slotsWidget;
   }
 
-  _openFile() async {
-    Directory dir = filesPath;
-
-    String path = await FilesystemPicker.open(
-      title: 'Carregar Programa',
-      context: context,
-      rootDirectory: dir,
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-      allowedExtensions: ['.json'],
-      fileTileSelectMode: FileTileSelectMode.wholeTile,
-    );
-    if (path != null) {
-      if (path.isNotEmpty) {
-        config.clear();
-        File _file = File(path);
-        config = jsonDecode(_file.readAsStringSync());
-        //String _hex = config['hex'];
-        String _ref = config['ref'];
-        config['config'].values.forEach((element) {
-          element['color'] = Colors.grey[400];
-          element['port'] = element['port'];
-        });
-        _controllerCP.text = _ref;
-        setState(() {});
-      }
-    }
-  }
-
   _recordDevice() async {
     /* if (!config['config']
         .values
@@ -589,5 +579,3 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     } */
   }
 }
-
-_commandSTProgram() {}

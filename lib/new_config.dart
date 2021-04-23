@@ -1,10 +1,12 @@
-import 'dart:convert';
+/* import 'dart:convert';
 import 'dart:io';
 
 import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/model/config.dart';
-import 'package:gravador_mg/variables_functions.dart';
+import 'package:gravador_mg/utils/variables_functions.dart';
+
+import 'repository/DirectoryRepository.dart';
 
 class NewConfig extends StatefulWidget {
   @override
@@ -385,3 +387,4 @@ class _NewConfigState extends State<NewConfig> {
     );
   }
 }
+ */

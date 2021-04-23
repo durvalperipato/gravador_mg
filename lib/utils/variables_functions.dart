@@ -1,15 +1,8 @@
-import 'dart:async';
-
-import 'package:file/file.dart' as file;
-import 'package:file/local.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:io';
-
 final List<String> ports = List.generate(29, (index) => 'COM${index + 1}');
 final List<String> location = List.generate(9, (index) => 'PORT${index + 1}');
-Map<dynamic, dynamic> config = {};
+//Map<dynamic, dynamic> config = {};
 
-verifyPassword(String pass) {
+/* verifyPassword(String pass) {
   try {
     Directory dir = confPath;
     File _file = File(dir.path + '\\conf.txt');
@@ -21,14 +14,14 @@ verifyPassword(String pass) {
   } catch (e) {
     return false;
   }
-}
+} */
 
-_getReferenceLocalFileSystem() {
+/* _getReferenceLocalFileSystem() {
   file.FileSystem fs = LocalFileSystem();
   return fs;
-}
+} */
 
-Future<Directory> verifyDirectory() async {
+/* Future<Directory> verifyDirectory() async {
   var fs = _getReferenceLocalFileSystem();
   Directory dir =
       fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\conf');
@@ -43,17 +36,17 @@ Future<Directory> verifyDirectory() async {
   fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\files');
   return dir.create();
 }
-
-Directory get filesPath {
+ */
+/* Directory get filesPath {
   var fs = _getReferenceLocalFileSystem();
   Directory dir =
       fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\files');
   return dir;
-}
+} */
 
-Directory get confPath {
+/* Directory get confPath {
   var fs = _getReferenceLocalFileSystem();
   Directory dir =
       fs.currentDirectory.childDirectory(fs.currentDirectory.path + '\\conf');
   return dir;
-}
+} */
