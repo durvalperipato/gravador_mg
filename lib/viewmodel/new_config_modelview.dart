@@ -1,29 +1,42 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gravador_mg/model/config.dart';
+import 'package:gravador_mg/repository/DirectoryRepository.dart';
 
 class NewConfigViewModel extends ChangeNotifier {
-  Config newConfig;
-
   TextEditingController _lenghtSlots = TextEditingController(text: '0');
   TextEditingController _reference = TextEditingController();
   TextEditingController _hexFile = TextEditingController();
-  TextEditingController _program = TextEditingController();
+  String _program = 'SILICON LABS';
 
-  Map _slots = {};
+  Map<String, dynamic> _slots = {};
 
-  /* String get hex => newConfig.hex;
-  String get program => newConfig.program;
-  String get ref => newConfig.ref; */
+  bool valueCheckBox = true;
 
   get slots => _slots;
   get lenghtSlots => _lenghtSlots;
   get reference => _reference;
   get hexFile => _hexFile;
-  get program => _program;
 
-  setNewConfig(Map slots, String hex, String ref, String program) {
-    this.newConfig = Config(slots, hex, ref, program);
+  set program(String text) {
+    _program = text;
+  }
+
+  setNewConfig() {
+    Config newConfig = Config(slots, hexFile.text, reference.text, _program);
+    File file = File(DirectoryRepository.filesDirectory.path +
+        '\\' +
+        '${reference.text}.json');
+
+    file.writeAsStringSync(jsonEncode(newConfig));
+  }
+
+  onClickCheckBox() {
+    valueCheckBox = !valueCheckBox;
+    notifyListeners();
   }
 
   submitSlots(String value) {

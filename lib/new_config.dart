@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/variables_functions.dart';
-import 'viewmodel/home_page_modelview.dart';
 import 'viewmodel/new_config_modelview.dart';
 
 class NewConfig extends StatefulWidget {
@@ -44,6 +42,56 @@ class _NewConfigState extends State<NewConfig> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Flexible(
+                        flex: 1,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 80,
+                              child: Center(
+                                child: Text('Programa:'),
+                              ),
+                            ),
+                            Container(
+                              height: 80,
+                              width: 125,
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                      value: newConfigViewModel.valueCheckBox,
+                                      onChanged: (value) {
+                                        newConfigViewModel.program =
+                                            'SILICON LABS';
+                                        newConfigViewModel.onClickCheckBox();
+                                      }),
+                                  Center(
+                                    child: Text('Silicon Labs'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 80,
+                              width: 125,
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                      value: !newConfigViewModel.valueCheckBox,
+                                      onChanged: (value) {
+                                        newConfigViewModel.program = 'ST';
+
+                                        newConfigViewModel.onClickCheckBox();
+                                      }),
+                                  Center(
+                                    child: Text('ST'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       Flexible(
                         flex: 1,
                         child: Row(
@@ -168,7 +216,7 @@ class _NewConfigState extends State<NewConfig> {
                               height: 30,
                               width: 120,
                               child: Center(
-                                child: Text('Programa:'),
+                                child: Text('Path do programa:'),
                               ),
                             ),
                             Container(
@@ -238,7 +286,7 @@ class _NewConfigState extends State<NewConfig> {
                           child: ElevatedButton(
                             onPressed: () {
                               if (newConfigViewModel.hasValueInAllFields()) {
-                                _formKey.currentState.save();
+                                newConfigViewModel.setNewConfig();
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
