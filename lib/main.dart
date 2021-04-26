@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gravador_mg/new_config.dart';
-import 'package:gravador_mg/utils/variables_functions.dart';
+import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
 import 'package:provider/provider.dart';
 
-import 'repository/DirectoryRepository.dart';
+import 'new_config.dart';
 import 'viewmodel/home_page_modelview.dart';
 
 void main() {
@@ -26,9 +23,19 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
       ),
-      home: ChangeNotifierProvider(
-        create: (context) => HomePageViewModel(),
-        child: MyHomePage(title: 'Gravador MarGirius'),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => HomePageViewModel(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => NewConfigViewModel(),
+            child: NewConfig(),
+          )
+        ],
+        child: MyHomePage(
+          title: 'Gravador MarGirius 2 ',
+        ),
       ),
     );
   }
@@ -45,23 +52,21 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<Widget> _slotsWidget = [];
-  List<bool> _recording = [];
-
-  //TextEditingController _controllerCP = TextEditingController();
-  //TextEditingController _passwordController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey();
 
   String message = '';
 
-  bool _isRecording;
-
   FocusNode _recordFocusNode = FocusNode();
 
   @override
   void initState() {
-    _isRecording = false;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -121,12 +126,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                 if (_formKey.currentState
                                                     .validate())
                                                   {
-                                                    /* Navigator.of(context).push(
+                                                    Navigator.of(context).push(
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             NewConfig(),
                                                       ),
-                                                    ), */
+                                                    ),
                                                   },
                                               },
                                             ),
@@ -173,8 +178,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       focusNode: _recordFocusNode,
                       onKey: (value) {
                         if (value.isKeyPressed(LogicalKeyboardKey.enter) &&
-                            _isRecording == false) {
-                          _recordDevice();
+                            !homeViewModel.isRecording) {
+                          homeViewModel.recordDevice();
                         }
                       },
                       child: Padding(
@@ -200,8 +205,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                           backgroundColor:
                                               MaterialStateProperty.all(
                                                   Colors.blue[600])),
-                                      onPressed: () => homeViewModel.openFile(
-                                          context, config),
+                                      onPressed: () =>
+                                          homeViewModel.openFile(context),
                                       child: Text(
                                         'Carregar Programa',
                                         style: TextStyle(
@@ -338,7 +343,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
-                                    children: containerSlots),
+                                    children: containerSlots(homeViewModel)),
                               ),
                             ),
                             SizedBox(
@@ -355,10 +360,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                     style: ButtonStyle(
                                       elevation: MaterialStateProperty.all(10),
                                     ),
-                                    onPressed: _isRecording
+                                    onPressed: homeViewModel.isRecording
                                         ? null
-                                        : () => _recordDevice(),
-                                    child: _isRecording
+                                        : () => homeViewModel.recordDevice(),
+                                    child: homeViewModel.isRecording
                                         ? CircularProgressIndicator(
                                             backgroundColor: Colors.blue[900],
                                           )
@@ -401,40 +406,35 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 
-  List<Widget> get containerSlots {
+  List<Widget> containerSlots(HomePageViewModel homeViewModel) {
     _slotsWidget.clear();
-    _recording.clear();
-    if (config.isNotEmpty) {
-      config['config'].entries.forEach((element) {
-        _recording.add(false);
+    homeViewModel.recordingSlots.clear();
+    if (homeViewModel.slots.isNotEmpty) {
+      homeViewModel.slots['config'].entries.forEach((element) {
+        homeViewModel.addRecording = false;
         _slotsWidget.add(
           Flexible(
             flex: 2,
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  element.value['active'] = !element.value['active'];
-                });
+                homeViewModel.activeOrDisableSlot(element.key);
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 30),
                 width: double.maxFinite,
                 decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                        offset: Offset(2, 2),
-                        color: Colors.black87,
-                        blurRadius: 2),
-                    BoxShadow(
-                        offset: Offset(-2, -2),
-                        color: Colors.white,
-                        blurRadius: 2),
-                  ],
-                  borderRadius: BorderRadius.circular(20),
-                  color: element.value['active']
-                      ? element.value['color']
-                      : Colors.grey[200],
-                ),
+                    boxShadow: [
+                      BoxShadow(
+                          offset: Offset(2, 2),
+                          color: Colors.black87,
+                          blurRadius: 2),
+                      BoxShadow(
+                          offset: Offset(-2, -2),
+                          color: Colors.white,
+                          blurRadius: 2),
+                    ],
+                    borderRadius: BorderRadius.circular(20),
+                    color: homeViewModel.colorSlot(element.key)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -444,12 +444,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         color: element.value['active']
                             ? Colors.black
                             : Colors.grey[400],
-                        fontSize: config['config'].length > 7 &&
-                                config['config'].length < 11
-                            ? 15
-                            : config['config'].length >= 11
-                                ? 10
-                                : 30,
+                        fontSize: homeViewModel.textFontSize(title: true),
                       ),
                     ),
                     Text(
@@ -459,12 +454,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         color: element.value['active']
                             ? Colors.black
                             : Colors.grey[400],
-                        fontSize: config['config'].length > 7 &&
-                                config['config'].length < 11
-                            ? 10
-                            : config['config'].length >= 11
-                                ? 7
-                                : 20,
+                        fontSize: homeViewModel.textFontSize(),
                       ),
                     ),
                     Text(
@@ -474,12 +464,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         color: element.value['active']
                             ? Colors.black
                             : Colors.grey[400],
-                        fontSize: config['config'].length > 7 &&
-                                config['config'].length < 11
-                            ? 10
-                            : config['config'].length >= 11
-                                ? 8
-                                : 20,
+                        fontSize: homeViewModel.textFontSize(),
                       ),
                     ),
                   ],
@@ -494,88 +479,5 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
 
     return _slotsWidget;
-  }
-
-  _recordDevice() async {
-    /* if (!config['config']
-        .values
-        .every((element) => element['active'] == false)) {
-      /* setState(() {
-                    _isRecording = true;
-                  }); */
-      try {
-        if (config.isNotEmpty) {
-          int index = 0;
-          int length = 0;
-          config['config'].values.forEach((element) async {
-            if (element['active']) {
-              element['color'] = Colors.yellow[200];
-
-              try {
-                await Process.run(
-                  /* 'efm8load.exe' */ 'stvp/STVP_CmdLine.exe',
-                  [
-                    /* '-p', '${element['port']}', config['hex'] */ '-BoardName=ST-LINK',
-                    '-Port=USB',
-                    '-ProgMode=SWIM',
-                    '-Device=STM8S001J3',
-                    '-Tool_ID=0',
-                    '-no_loop',
-                    '-FileProg=N:\\3_DESENVOLVIMENTO\\Detec_Projeto\\Durval\\Gravador\\files_svtp\\CJ017940.s19'
-                  ],
-                ).then((process) {
-                  if (process.exitCode != 0) {
-                    _recording[index] = true;
-                    index++;
-                    element['color'] = Colors.red[200];
-                    setState(() {});
-                  } else {
-                    if (process.stdout.contains('?')) {
-                      _recording[index] = true;
-                      index++;
-                      element['color'] = Colors.red[200];
-                      setState(() {});
-                    } else if (process.stdout.contains('@@@@@@')) {
-                      _recording[index] = true;
-                      index++;
-                      element['color'] = Colors.green[200];
-                      setState(() {});
-                    }
-                  }
-                }, onError: (error) {
-                  element['color'] = Colors.red[200];
-                  _recording[index] = true;
-                  index++;
-                  setState(() {});
-                }).whenComplete(() {
-                  _recording.forEach((element) {
-                    if (element) {
-                      length += 1;
-                      if (length == _recording.length) {
-                        setState(() {
-                          _isRecording = false;
-                        });
-                      }
-                    }
-                  });
-                });
-              } catch (e) {
-                setState(() {
-                  _isRecording = false;
-                });
-              }
-            } else {
-              _recording[index] = true;
-              index++;
-              length++;
-            }
-          });
-        }
-      } catch (e) {
-        setState(() {
-          _isRecording = false;
-        });
-      }
-    } */
   }
 }

@@ -1,11 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:gravador_mg/model/config.dart';
 
-class ModelViewConfig {
-  final Config config;
+class NewConfigViewModel extends ChangeNotifier {
+  Config newConfig;
 
-  ModelViewConfig(this.config);
+  NewConfigViewModel();
 
-  String get hex => config.hex;
-  String get program => config.program;
-  String get ref => config.ref;
+  String get hex => newConfig.hex;
+  String get program => newConfig.program;
+  String get ref => newConfig.ref;
+
+  set config(Config newConfig) {
+    this.newConfig = newConfig;
+    notifyListeners();
+  }
 }
