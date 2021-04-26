@@ -23,18 +23,10 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
       ),
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (context) => HomePageViewModel(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => NewConfigViewModel(),
-            child: NewConfig(),
-          )
-        ],
+      home: ChangeNotifierProvider(
+        create: (context) => HomePageViewModel(),
         child: MyHomePage(
-          title: 'Gravador MarGirius 2 ',
+          title: 'Gravador MarGirius',
         ),
       ),
     );
@@ -128,9 +120,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                   {
                                                     Navigator.of(context).push(
                                                       MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            NewConfig(),
-                                                      ),
+                                                          builder: (context) =>
+                                                              ChangeNotifierProvider(
+                                                                create: (context) =>
+                                                                    NewConfigViewModel(),
+                                                                child:
+                                                                    NewConfig(),
+                                                              )),
                                                     ),
                                                   },
                                               },
