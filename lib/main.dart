@@ -144,12 +144,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                         onPressed: () => {
                                           if (_formKey.currentState.validate())
                                             {
-                                              /* Navigator.of(context).push(
+                                              Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      NewConfig(),
-                                                ),
-                                              ), */
+                                                    builder: (context) =>
+                                                        ChangeNotifierProvider(
+                                                          create: (context) =>
+                                                              NewConfigViewModel(),
+                                                          child: NewConfig(),
+                                                        )),
+                                              ),
                                             },
                                         },
                                         child: Text('Confirmar'),

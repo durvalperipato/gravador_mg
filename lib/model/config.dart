@@ -1,19 +1,19 @@
 class Config {
-  final Map<String, dynamic> config;
+  final Map<String, dynamic> slots;
   final String hex;
   final String ref;
   final String program;
 
-  Config(this.config, this.hex, this.ref, this.program);
+  Config(this.slots, this.hex, this.ref, this.program);
 
   Config.fromJson(Map<String, dynamic> json)
-      : config = json['config'],
+      : slots = json['config'],
         hex = json['hex'],
         ref = json['ref'],
         program = json['program'];
 
   Map<String, dynamic> toJson() => {
-        'config': config,
+        'config': slots['config'],
         'hex': hex,
         'ref': ref,
         'program': program,

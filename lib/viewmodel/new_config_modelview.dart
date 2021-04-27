@@ -12,7 +12,7 @@ class NewConfigViewModel extends ChangeNotifier {
   TextEditingController _hexFile = TextEditingController();
   String _program = 'SILICON LABS';
 
-  Map<String, dynamic> _slots = {};
+  Map<String, dynamic> _slots = {'config': {}};
 
   bool valueCheckBox = true;
 
@@ -24,6 +24,12 @@ class NewConfigViewModel extends ChangeNotifier {
 
   set program(String text) {
     _program = text;
+    notifyListeners();
+  }
+
+  set slots(Map slots) {
+    _slots = slots;
+    notifyListeners();
   }
 
   setNewConfig() {
@@ -37,6 +43,8 @@ class NewConfigViewModel extends ChangeNotifier {
 
   onClickCheckBox() {
     valueCheckBox = !valueCheckBox;
+    slots.clear();
+    slots['config'] = {};
     notifyListeners();
   }
 
@@ -58,8 +66,9 @@ class NewConfigViewModel extends ChangeNotifier {
 
   openFile() {
     final result = OpenFilePicker()
-      ..defaultExtension = 'efm8'
-      ..filterSpecification = {'Program (*.efm8)': '*.efm8'}
+      ..filterSpecification = program == 'ST'
+          ? {'Program (*.s19)': '*.s19', 'Program (*.efm8)': '*.efm8'}
+          : {'Program (*.efm8)': '*.efm8', 'Program (*.s19)': '*.s19'}
       ..title = 'Selecione o arquivo';
     final file = result.getFile();
     if (file != null) {

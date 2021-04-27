@@ -5,6 +5,7 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/repository/DirectoryRepository.dart';
+import 'package:gravador_mg/viewmodel/shell_modelview.dart';
 
 class HomePageViewModel extends ChangeNotifier {
   // ######### Variables #########
@@ -121,64 +122,62 @@ class HomePageViewModel extends ChangeNotifier {
       try {
         if (slots.isNotEmpty) {
           int index = 0;
+          int id = 0;
           int length = 0;
           slots['config'].values.forEach((element) async {
             if (element['active']) {
               element['color'] = Colors.yellow[200];
-
               try {
-                await Process.run(
-                  /* 'efm8load.exe' */ 'stvp/STVP_CmdLine.exe',
-                  [
-                    /* '-p', '${element['port']}', config['hex'] */ '-BoardName=ST-LINK',
-                    '-Port=USB',
-                    '-ProgMode=SWIM',
-                    '-Device=STM8S001J3',
-                    '-Tool_ID=0',
-                    '-no_loop',
-                    '-FileProg=N:\\3_DESENVOLVIMENTO\\Detec_Projeto\\Durval\\Gravador\\files_svtp\\CJ017940.s19'
-                  ],
-                ).then((process) {
+                var process = slots['program'] == 'ST'
+                    ? ShellModelView.recordST(id.toString(), slots['hex'])
+                    : ShellModelView.recordSiliconLabs(
+                        element['port'], slots['hex']);
+
+                process.then((process) {
                   if (process.exitCode != 0) {
                     recordingSlots[index] = true;
                     index++;
                     element['color'] = Colors.red[200];
-                    //setState(() {});
                   } else {
-                    if (process.stdout.contains('?')) {
-                      recordingSlots[index] = true;
-                      index++;
-                      element['color'] = Colors.red[200];
-                      // setState(() {});
-                    } else if (process.stdout.contains('@@@@@@')) {
-                      recordingSlots[index] = true;
-                      index++;
-                      element['color'] = Colors.green[200];
-                      //  setState(() {});
+                    if (slots['program'] == 'ST') {
+                      if (process.stdout
+                          .contains('Programming PROGRAM MEMORY succeeds')) {
+                        recordingSlots[index] = true;
+                        index++;
+                        element['color'] = Colors.green[200];
+                      } else {
+                        recordingSlots[index] = true;
+                        index++;
+                        element['color'] = Colors.red[200];
+                      }
+                    } else {
+                      if (process.stdout.contains('?')) {
+                        recordingSlots[index] = true;
+                        index++;
+                        element['color'] = Colors.red[200];
+                      } else if (process.stdout.contains('@@@@@@')) {
+                        recordingSlots[index] = true;
+                        index++;
+                        element['color'] = Colors.green[200];
+                      }
                     }
                   }
                 }, onError: (error) {
                   element['color'] = Colors.red[200];
                   recordingSlots[index] = true;
                   index++;
-                  //setState(() {});
                 }).whenComplete(() {
                   recordingSlots.forEach((element) {
                     if (element) {
                       length += 1;
                       if (length == recordingSlots.length) {
-                        /* setState(() {
-                          _isRecording = false;
-                        }); */
                         isRecording = false;
                       }
                     }
                   });
                 });
+                id++;
               } catch (e) {
-                /* setState(() {
-                  _isRecording = false;
-                }); */
                 isRecording = false;
               }
             } else {
@@ -189,10 +188,7 @@ class HomePageViewModel extends ChangeNotifier {
           });
         }
       } catch (e) {
-        /* setState(() {
-          _isRecording = false;
-        }); */
-        isRecording = true;
+        isRecording = false;
       }
     }
   }

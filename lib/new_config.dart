@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gravador_mg/viewmodel/shell_modelview.dart';
 import 'package:provider/provider.dart';
 
-import 'utils/variables_functions.dart';
+import 'utils/variables.dart';
 import 'viewmodel/new_config_modelview.dart';
 
 class NewConfig extends StatefulWidget {
@@ -125,10 +125,9 @@ class _NewConfigState extends State<NewConfig> {
                                   onPressed: () async {
                                     try {
                                       newConfigViewModel.program == 'ST'
-                                          ? await ShellModelView
-                                              .shellSTToVerifyPorts(
-                                                  newConfigViewModel)
-                                          : await ShellModelView
+                                          ? ShellModelView.shellSTToVerifyPorts(
+                                              newConfigViewModel)
+                                          : ShellModelView
                                               .shellSiliconLabsToVerifyPorts(
                                                   newConfigViewModel);
                                       ScaffoldMessenger.of(context)
@@ -162,7 +161,9 @@ class _NewConfigState extends State<NewConfig> {
                               height: 30,
                               width: 120,
                               child: Center(
-                                child: Text('Path do programa:'),
+                                child: Text(newConfigViewModel.program != 'ST'
+                                    ? 'File efm8'
+                                    : 'File s19'),
                               ),
                             ),
                             Container(
@@ -284,52 +285,58 @@ class _NewConfigState extends State<NewConfig> {
                     Flexible(
                       flex: 6,
                       child: ListView.builder(
-                        itemCount: newConfigViewModel.slots.length,
-                        itemBuilder: (context, index) => Row(
-                          children: [
-                            Container(
-                              width: 60,
-                              child: Text('SLOT ${index + 1}'),
-                            ),
-                            SizedBox(
-                              width: 40,
-                            ),
-                            Container(
-                              width: 80,
-                              child: DropdownButton(
-                                value: newConfigViewModel
-                                    .slots['SLOT ${index + 1}']['port'],
-                                onChanged: (value) {
-                                  setState(() {
-                                    newConfigViewModel
-                                            .slots['SLOT ${index + 1}']
-                                        ['port'] = value;
-                                  });
-                                },
-                                items: location //ports
-                                    .map((value) => DropdownMenuItem(
-                                        value: value, child: Text(value)))
-                                    .toList(),
+                        itemCount: newConfigViewModel.slots['config'].length,
+                        itemBuilder: (context, index) {
+                          return Row(
+                            children: [
+                              Container(
+                                width: 60,
+                                child: Text('SLOT ${index + 1}'),
                               ),
-                            ),
-                            SizedBox(
-                              width: 40,
-                            ),
-                            Container(
-                              width: 20,
-                              child: Checkbox(
-                                  value: newConfigViewModel
-                                      .slots['SLOT ${index + 1}']['active'],
+                              SizedBox(
+                                width: 40,
+                              ),
+                              Container(
+                                width: 80,
+                                child: DropdownButton(
+                                  value: newConfigViewModel.slots['config']
+                                      ['SLOT ${index + 1}']['port'],
                                   onChanged: (value) {
                                     setState(() {
-                                      newConfigViewModel
-                                              .slots['SLOT ${index + 1}']
-                                          ['active'] = value;
+                                      newConfigViewModel.slots['config']
+                                          ['SLOT ${index + 1}']['port'] = value;
                                     });
-                                  }),
-                            )
-                          ],
-                        ),
+                                  },
+                                  items: newConfigViewModel.program == 'ST'
+                                      ? location
+                                          .map((value) => DropdownMenuItem(
+                                              value: value, child: Text(value)))
+                                          .toList()
+                                      : ports
+                                          .map((value) => DropdownMenuItem(
+                                              value: value, child: Text(value)))
+                                          .toList(),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 40,
+                              ),
+                              Container(
+                                width: 20,
+                                child: Checkbox(
+                                    value: newConfigViewModel.slots['config']
+                                        ['SLOT ${index + 1}']['active'],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        newConfigViewModel.slots['config']
+                                                ['SLOT ${index + 1}']
+                                            ['active'] = value;
+                                      });
+                                    }),
+                              )
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
