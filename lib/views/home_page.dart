@@ -354,7 +354,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     Text(
-                      'PORTA\n${element.value['port']}',
+                      homeViewModel.slots['program'] == 'ST'
+                          ? 'ID\n${element.value['port']}'
+                          : 'PORTA\n${element.value['port']}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: element.value['active']
