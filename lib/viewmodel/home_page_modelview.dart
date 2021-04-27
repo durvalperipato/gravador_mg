@@ -19,14 +19,10 @@ class HomePageViewModel extends ChangeNotifier {
   //######### Getters #########
   Directory get filesPath => this._files;
   Directory get configurationPath => this._configuration;
-
   TextEditingController get controllerCP => _controllerCP;
   TextEditingController get controllerPassword => _controllerPassword;
-
   Map get slots => this._slots;
-
   List get recordingSlots => this._recording;
-
   bool get isRecording => this._isRecording;
 
   //######### Setters #########
