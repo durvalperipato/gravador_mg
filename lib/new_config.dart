@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:gravador_mg/viewmodel/shell_modelview.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/variables_functions.dart';
@@ -124,73 +123,20 @@ class _NewConfigState extends State<NewConfig> {
                               width: 150,
                               child: TextButton(
                                   onPressed: () async {
-                                    int index = 0;
-
-                                    newConfigViewModel.slots.clear();
                                     try {
-                                      List<String> _devicesLocation = [];
-                                      await Process.run(
-                                          "wmic path CIM_LogicalDevice where \"Caption like 'USB Mass Storage Device'\" get DeviceID",
-                                          []).then((process) {
-                                        process.stdout
-                                            .toString()
-                                            .split('\n')
-                                            .forEach((element) {
-                                          if (element.startsWith('USB') &&
-                                              element.contains('PID_3744')) {
-                                            _devicesLocation.add(element
-                                                .split('\\')
-                                                .last
-                                                .trim());
-                                          }
-                                        });
-                                        _devicesLocation
-                                            .toSet()
-                                            .toList()
-                                            .forEach((element) {
-                                          index++;
-                                          newConfigViewModel
-                                              .slots['SLOT $index'] = {
-                                            'port': 'PORT' +
-                                                element.split('&').last,
-                                            'active': true,
-                                          };
-                                        });
-                                        setState(() {});
-                                      });
-
-                                      /* await Process.run('chgport', []).then(
-                                          (process) {
-                                        List<String> _ports = [];
-                                        _ports = process.stdout.split('\n');
-                                        _lengthSlots.text = index.toString();
-                                        _ports
-                                            .where((element) =>
-                                                element.contains('Silab'))
-                                            .forEach((element) {
-                                          index++;
-                                          slots['SLOT $index'] = {
-                                            'port': element.split(" ").first,
-                                            'active': true,
-                                          };
-                                          _lengthSlots.text = index.toString();
-                                        });
-                                      }, onError: (onError) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: Text(
-                                              'Não foi possível realizar a configuração'),
-                                          backgroundColor: Colors.red[300],
-                                        ));
-                                      }).whenComplete(() {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: Text(
-                                              'Configuração das portas realizada com sucesso'),
-                                          backgroundColor: Colors.green[300],
-                                        ));
-                                        setState(() {});
-                                      }); */
+                                      newConfigViewModel.program == 'ST'
+                                          ? await ShellModelView
+                                              .shellSTToVerifyPorts(
+                                                  newConfigViewModel)
+                                          : await ShellModelView
+                                              .shellSiliconLabsToVerifyPorts(
+                                                  newConfigViewModel);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Configuração das portas realizada com sucesso'),
+                                        backgroundColor: Colors.green[300],
+                                      ));
                                     } catch (e) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(

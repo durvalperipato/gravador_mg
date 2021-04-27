@@ -20,6 +20,7 @@ class NewConfigViewModel extends ChangeNotifier {
   get lenghtSlots => _lenghtSlots;
   get reference => _reference;
   get hexFile => _hexFile;
+  get program => this._program;
 
   set program(String text) {
     _program = text;
