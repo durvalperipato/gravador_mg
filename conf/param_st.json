@@ -1,0 +1,12 @@
+{
+    "params": {
+        "-BoardName": "ST-LINK",
+        "-Port": "USB",
+        "-ProgMode": "SWIM",
+        "-Device": "STM8S001J3",
+        "-no_loop": "",
+        "-FileProg":"$hex",
+        "-Tool_ID":"$id"
+    }
+
+}

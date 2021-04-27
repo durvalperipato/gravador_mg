@@ -32,6 +32,10 @@ class NewConfigViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  set lenghtSlots(String value) {
+    _lenghtSlots.text = value;
+  }
+
   setNewConfig() {
     Config newConfig = Config(slots, hexFile.text, reference.text, _program);
     File file = File(DirectoryRepository.filesDirectory.path +
@@ -54,9 +58,10 @@ class NewConfigViewModel extends ChangeNotifier {
         int.tryParse(value) < 30) {
       int _length = int.parse(value);
       slots.clear();
+      slots['config'] = {};
       for (int index = 1; index <= _length; index++) {
-        slots['SLOT $index'] = {
-          'port': 'PORT$index',
+        slots['config']['SLOT $index'] = {
+          'port': _program == 'ST' ? '${index - 1}' : 'PORT$index',
           'active': true,
         };
         notifyListeners();

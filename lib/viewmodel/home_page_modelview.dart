@@ -49,26 +49,6 @@ class HomePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Color colorSlot(String slot) => slots['config'][slot]['active']
-      ? slots['config'][slot]['color']
-      : Colors.grey[200];
-
-  double textFontSize({bool title = false}) {
-    double min = 10;
-    double med = 15;
-    double max = 30;
-    if (!title) {
-      min = 7;
-      med = 10;
-      max = 20;
-    }
-    return slots['config'].length > 7 && slots['config'].length < 11
-        ? med
-        : slots['config'].length >= 11
-            ? min
-            : max;
-  }
-
   Future<Directory> verifyDirectory() async {
     return DirectoryRepository.verifyDirectory();
   }
@@ -120,18 +100,56 @@ class HomePageViewModel extends ChangeNotifier {
       try {
         if (slots.isNotEmpty) {
           int index = 0;
-          int id = 0;
+
           int length = 0;
           slots['config'].values.forEach((element) async {
             if (element['active']) {
               element['color'] = Colors.yellow[200];
               try {
-                var process = slots['program'] == 'ST'
-                    ? ShellModelView.recordST(id.toString(), slots['hex'])
-                    : ShellModelView.recordSiliconLabs(
-                        element['port'], slots['hex']);
+                Future<ProcessResult> process;
+                if (slots['program'] == 'ST') {
+                  File file = File(DirectoryRepository.confDirectory.path +
+                      '\\' +
+                      'param_st.json');
+                  Map params = jsonDecode(file.readAsStringSync())['params'];
+                  List<String> paramsST = [];
+
+                  params.entries.forEach((elementST) {
+                    if (elementST.value == "") {
+                      paramsST.add(elementST.key);
+                    } else if (elementST.value == "\$hex") {
+                      paramsST.add(elementST.key + '=' + slots['hex']);
+                    } else if (elementST.value == "\$id") {
+                      paramsST.add(elementST.key + '=' + element['port']);
+                    } else {
+                      paramsST.add(elementST.key + '=' + elementST.value);
+                    }
+                  });
+                  process = ShellModelView.recordST(paramsST);
+                } else {
+                  File file = File(DirectoryRepository.confDirectory.path +
+                      '\\' +
+                      'param_silicon_lab.json');
+                  Map params = jsonDecode(file.readAsStringSync())['params'];
+                  List<String> paramsSiliconLabs = [];
+                  params.entries.forEach((elementParams) {
+                    if (elementParams.value == "\$hex") {
+                      paramsSiliconLabs.add(slots['hex']);
+                    } else if (elementParams.value == "\$port") {
+                      paramsSiliconLabs
+                          .add(elementParams.key + ' ' + element['port']);
+                    } else if (elementParams.value == "") {
+                      paramsSiliconLabs.add(elementParams.key);
+                    } else {
+                      paramsSiliconLabs
+                          .add(elementParams.key + ' ' + elementParams.value);
+                    }
+                  });
+                  process = ShellModelView.recordSiliconLabs(paramsSiliconLabs);
+                }
 
                 process.then((process) {
+                  print(process.stdout);
                   if (process.exitCode != 0) {
                     recordingSlots[index] = true;
                     index++;
@@ -174,7 +192,6 @@ class HomePageViewModel extends ChangeNotifier {
                     }
                   });
                 });
-                id++;
               } catch (e) {
                 isRecording = false;
               }

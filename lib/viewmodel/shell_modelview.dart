@@ -20,7 +20,8 @@ class ShellModelView extends ChangeNotifier {
       _devicesLocation.toSet().toList().forEach((element) {
         index++;
         model.slots['config']['SLOT $index'] = {
-          'port': 'PORT' + element.split('&').last,
+          'port':
+              '${index - 1}', //+ element.split('&').last, ESTE COMANDO PEGA O NUMERO DA PORTA
           'active': true,
         };
       });
@@ -50,24 +51,16 @@ class ShellModelView extends ChangeNotifier {
     });
   }
 
-  static Future<ProcessResult> recordST(String id, String hex) {
+  static Future<ProcessResult> recordST(List<String> params) {
     return Process.run(
       'stvp/STVP_CmdLine.exe',
-      [
-        '-BoardName=ST-LINK',
-        '-Port=USB',
-        '-ProgMode=SWIM',
-        '-Device=STM8S001J3',
-        '-Tool_ID=$id',
-        '-no_loop',
-        '-FileProg=$hex',
-      ],
+      params,
     );
   }
 
-  static Future<ProcessResult> recordSiliconLabs(String port, String hex) =>
+  static Future<ProcessResult> recordSiliconLabs(List<String> params) =>
       Process.run(
         'efm8load.exe',
-        ['-p', '$port', '$hex'],
+        params,
       );
 }
