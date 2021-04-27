@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gravador_mg/styles/home_page_styles.dart';
 import 'package:gravador_mg/viewmodel/home_page_modelview.dart';
-import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
-import 'package:gravador_mg/views/new_config_page.dart';
+import 'package:gravador_mg/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -19,8 +18,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<Widget> _slotsWidget = [];
-
-  GlobalKey<FormState> _formKey = GlobalKey();
 
   String message = '';
 
@@ -62,81 +59,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     appBar: AppBar(
                       centerTitle: true,
                       actions: [
-                        IconButton(
-                            icon: Icon(Icons.settings),
-                            onPressed: () {
-                              {
-                                homeViewModel.controllerPassword.clear();
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    content: Container(
-                                      height: 120,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text('SENHA'),
-                                          Form(
-                                            key: _formKey,
-                                            child: TextFormField(
-                                              autofocus: true,
-                                              controller: homeViewModel
-                                                  .controllerPassword,
-                                              obscureText: true,
-                                              validator: (value) =>
-                                                  homeViewModel
-                                                          .verifyPassword(value)
-                                                      ? null
-                                                      : 'Senha Incorreta',
-                                              onEditingComplete: () => {
-                                                if (_formKey.currentState
-                                                    .validate())
-                                                  {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              ChangeNotifierProvider(
-                                                                create: (context) =>
-                                                                    NewConfigViewModel(),
-                                                                child:
-                                                                    NewConfig(),
-                                                              )),
-                                                    ),
-                                                  },
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: Text('Voltar'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => {
-                                          if (_formKey.currentState.validate())
-                                            {
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ChangeNotifierProvider(
-                                                          create: (context) =>
-                                                              NewConfigViewModel(),
-                                                          child: NewConfig(),
-                                                        )),
-                                              ),
-                                            },
-                                        },
-                                        child: Text('Confirmar'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            }),
+                        password(context, homeViewModel),
                         SizedBox(
                           width: 30,
                         ),
@@ -230,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                   SizedBox(
                                     width: 30,
                                   ),
+                                  refresh(context, homeViewModel),
                                   SizedBox(
                                     width: 30,
                                   ),

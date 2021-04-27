@@ -41,6 +41,10 @@ class HomePageViewModel extends ChangeNotifier {
     _recording.add(value);
   }
 
+  addTextControllerCP(String value) {
+    controllerCP.text = value;
+  }
+
   //######### Methods #########
 
   void activeOrDisableSlot(String slot) {
@@ -81,6 +85,7 @@ class HomePageViewModel extends ChangeNotifier {
       if (path.isNotEmpty) {
         File _file = File(path);
         slots = jsonDecode(_file.readAsStringSync());
+        addTextControllerCP(slots['ref']);
         slots['config'].values.forEach((element) {
           element['color'] = Colors.grey[400];
           element['port'] = element['port'];
