@@ -101,8 +101,6 @@ class HomePageViewModel extends ChangeNotifier {
       if (path.isNotEmpty) {
         File _file = File(path);
         slots = jsonDecode(_file.readAsStringSync());
-        //String _hex = config['hex'];
-        //String _ref = slots['ref'];
         slots['config'].values.forEach((element) {
           element['color'] = Colors.grey[400];
           element['port'] = element['port'];

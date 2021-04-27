@@ -61,7 +61,6 @@ class ShellModelView extends ChangeNotifier {
         '-Tool_ID=$id',
         '-no_loop',
         '-FileProg=$hex',
-        '-no_verif',
       ],
     );
   }
