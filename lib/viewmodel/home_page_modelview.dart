@@ -5,6 +5,7 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/repository/DirectoryRepository.dart';
+import 'package:gravador_mg/utils/variables.dart';
 import 'package:gravador_mg/viewmodel/shell_modelview.dart';
 
 class HomePageViewModel extends ChangeNotifier {
@@ -112,7 +113,7 @@ class HomePageViewModel extends ChangeNotifier {
               element['color'] = Colors.yellow[200];
               try {
                 Future<ProcessResult> process;
-                if (slots['program'] == 'ST') {
+                if (slots['program'] == programST) {
                   File file = File(DirectoryRepository.confDirectory.path +
                       '\\' +
                       'param_st.json');
@@ -160,7 +161,7 @@ class HomePageViewModel extends ChangeNotifier {
                     index++;
                     element['color'] = Colors.red[200];
                   } else {
-                    if (slots['program'] == 'ST') {
+                    if (slots['program'] == programST) {
                       if (process.stdout
                           .contains('Programming PROGRAM MEMORY succeeds')) {
                         recordingSlots[index] = true;

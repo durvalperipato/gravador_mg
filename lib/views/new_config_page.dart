@@ -53,36 +53,36 @@ class _NewConfigState extends State<NewConfig> {
                             ),
                             Container(
                               height: 80,
-                              width: 125,
+                              width: 140,
                               child: Row(
                                 children: [
                                   Checkbox(
                                       value: newConfigViewModel.valueCheckBox,
                                       onChanged: (value) {
                                         newConfigViewModel.program =
-                                            'SILICON LABS';
+                                            programSiliconLab;
                                         newConfigViewModel.onClickCheckBox();
                                       }),
                                   Center(
-                                    child: Text('Silicon Labs'),
+                                    child: Text(programSiliconLab),
                                   ),
                                 ],
                               ),
                             ),
                             Container(
                               height: 80,
-                              width: 125,
+                              width: 140,
                               child: Row(
                                 children: [
                                   Checkbox(
                                       value: !newConfigViewModel.valueCheckBox,
                                       onChanged: (value) {
-                                        newConfigViewModel.program = 'ST';
+                                        newConfigViewModel.program = programST;
 
                                         newConfigViewModel.onClickCheckBox();
                                       }),
                                   Center(
-                                    child: Text('ST'),
+                                    child: Text(programST),
                                   ),
                                 ],
                               ),
@@ -122,30 +122,41 @@ class _NewConfigState extends State<NewConfig> {
                               height: 30,
                               width: 150,
                               child: TextButton(
-                                  onPressed: () async {
-                                    try {
-                                      newConfigViewModel.program == 'ST'
-                                          ? ShellModelView.shellSTToVerifyPorts(
-                                              newConfigViewModel)
-                                          : ShellModelView
-                                              .shellSiliconLabsToVerifyPorts(
-                                                  newConfigViewModel);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            'Configuração das portas realizada com sucesso'),
-                                        backgroundColor: Colors.green[300],
-                                      ));
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            'Não foi possível realizar a configuração'),
-                                        backgroundColor: Colors.red[300],
-                                      ));
-                                    }
-                                  },
-                                  child: Text('Verificar Portas')),
+                                onPressed: () async {
+                                  newConfigViewModel.isVerifyPorts = true;
+                                  try {
+                                    newConfigViewModel.program == programST
+                                        ? await ShellModelView
+                                            .shellSTToVerifyPorts(
+                                                newConfigViewModel)
+                                        : await ShellModelView
+                                            .shellSiliconLabsToVerifyPorts(
+                                                newConfigViewModel);
+                                    newConfigViewModel.isVerifyPorts = false;
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          'Configuração das portas realizada com sucesso'),
+                                      backgroundColor: Colors.green[300],
+                                    ));
+                                  } catch (e) {
+                                    newConfigViewModel.isVerifyPorts = false;
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          'Não foi possível realizar a configuração'),
+                                      backgroundColor: Colors.red[300],
+                                    ));
+                                  }
+                                },
+                                child: newConfigViewModel.isVerifyPorts
+                                    ? Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 10.0),
+                                        child: LinearProgressIndicator(),
+                                      )
+                                    : Text('Verificar Portas'),
+                              ),
                             ),
                           ],
                         ),
@@ -161,9 +172,10 @@ class _NewConfigState extends State<NewConfig> {
                               height: 30,
                               width: 120,
                               child: Center(
-                                child: Text(newConfigViewModel.program != 'ST'
-                                    ? 'File efm8'
-                                    : 'File s19'),
+                                child: Text(
+                                    newConfigViewModel.program != programST
+                                        ? 'File efm8'
+                                        : 'File s19'),
                               ),
                             ),
                             Container(
@@ -276,9 +288,10 @@ class _NewConfigState extends State<NewConfig> {
                           ),
                           Container(
                               width: 80,
-                              child: Text(newConfigViewModel.program == 'ST'
-                                  ? 'ID'
-                                  : 'PORTA')),
+                              child: Text(
+                                  newConfigViewModel.program == programST
+                                      ? 'ID'
+                                      : 'PORTA')),
                           SizedBox(
                             width: 30,
                           ),
@@ -311,7 +324,7 @@ class _NewConfigState extends State<NewConfig> {
                                           ['SLOT ${index + 1}']['port'] = value;
                                     });
                                   },
-                                  items: newConfigViewModel.program == 'ST'
+                                  items: newConfigViewModel.program == programST
                                       ? location
                                           .map((value) => DropdownMenuItem(
                                               value: value, child: Text(value)))

@@ -1,10 +1,41 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gravador_mg/viewmodel/home_page_modelview.dart';
 import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
 
 class ShellModelView extends ChangeNotifier {
+  static refreshSTPorts(HomePageViewModel model) {
+    _commandST(model);
+  }
+
+  static refreshSiliconLabsPorts(HomePageViewModel model) {
+    _commandSiliconLab(model);
+  }
+
   static Future<void> shellSTToVerifyPorts(NewConfigViewModel model) async {
+    _commandST(model);
+  }
+
+  static Future<void> shellSiliconLabsToVerifyPorts(
+      NewConfigViewModel model) async {
+    _commandSiliconLab(model);
+  }
+
+  static Future<ProcessResult> recordST(List<String> params) {
+    return Process.run(
+      'stvp/STVP_CmdLine.exe',
+      params,
+    );
+  }
+
+  static Future<ProcessResult> recordSiliconLabs(List<String> params) =>
+      Process.run(
+        'efm8load.exe',
+        params,
+      );
+
+  static _commandST(dynamic model) async {
     int index = 0;
 
     List<String> _devicesLocation = [];
@@ -30,8 +61,7 @@ class ShellModelView extends ChangeNotifier {
     });
   }
 
-  static Future<void> shellSiliconLabsToVerifyPorts(
-      NewConfigViewModel model) async {
+  static _commandSiliconLab(dynamic model) async {
     int index = 0;
 
     await Process.run('chgport', []).then((process) {
@@ -50,17 +80,4 @@ class ShellModelView extends ChangeNotifier {
       model.slots = model.slots;
     });
   }
-
-  static Future<ProcessResult> recordST(List<String> params) {
-    return Process.run(
-      'stvp/STVP_CmdLine.exe',
-      params,
-    );
-  }
-
-  static Future<ProcessResult> recordSiliconLabs(List<String> params) =>
-      Process.run(
-        'efm8load.exe',
-        params,
-      );
 }
