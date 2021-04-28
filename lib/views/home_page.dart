@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gravador_mg/styles/home_page_styles.dart';
 import 'package:gravador_mg/viewmodel/home_page_modelview.dart';
 import 'package:gravador_mg/widgets/buttons.dart';
 import 'package:gravador_mg/widgets/slots.dart';
@@ -39,28 +40,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.grey[300],
-                        Colors.grey[300],
-                        Colors.grey[200],
-                        Colors.grey[200],
-                        Colors.grey[100],
-                      ],
-                      end: Alignment.bottomCenter,
-                      begin: Alignment.topCenter,
-                    ),
-                  ),
+                  decoration: HomePageStyles.backgroundColorHomePage,
                   child: Scaffold(
                     backgroundColor: Colors.transparent,
                     appBar: AppBar(
                       centerTitle: true,
                       actions: [
-                        password(context, homeViewModel),
-                        SizedBox(
-                          width: 30,
-                        ),
+                        passwordButton(context, homeViewModel),
+                        HomePageStyles.blankWidthSpace,
                       ],
                       title: Text(
                         widget.title,
@@ -87,51 +74,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                               flex: 1,
                               child: Row(
                                 children: [
-                                  SizedBox(
-                                    width: 30,
-                                  ),
+                                  HomePageStyles.blankWidthSpace,
                                   Container(
                                     width: 200,
                                     height: 50,
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                          elevation:
-                                              MaterialStateProperty.all(10),
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                                  Colors.blue[600])),
-                                      onPressed: () =>
-                                          homeViewModel.openFile(context),
-                                      child: Text(
-                                        'Carregar Programa',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.9),
-                                        ),
-                                      ),
-                                    ),
+                                    child: searchProgramButton(
+                                        context, homeViewModel),
                                   ),
-                                  SizedBox(
-                                    width: 20,
-                                  ),
+                                  HomePageStyles.blankWidthSpace,
                                   Flexible(
                                     child: Container(
                                       height: 50,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Colors.grey[300],
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black54,
-                                              offset: Offset(-2, -2),
-                                              blurRadius: 2,
-                                            ),
-                                            BoxShadow(
-                                              color: Colors.white70,
-                                              offset: Offset(2, 2),
-                                              blurRadius: 2,
-                                            ),
-                                          ]),
+                                      decoration: HomePageStyles.innerShadowing,
                                       child: Center(
                                         child: TextField(
                                           readOnly: true,
@@ -148,19 +102,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                  refresh(context, homeViewModel),
-                                  SizedBox(
-                                    width: 30,
-                                  ),
+                                  HomePageStyles.blankWidthSpace,
+                                  refreshButton(context, homeViewModel),
+                                  HomePageStyles.blankWidthSpace,
                                 ],
                               ),
                             ),
-                            SizedBox(
-                              height: 30,
-                            ),
+                            HomePageStyles.blankHeightSpace,
                             Expanded(
                               flex: 3,
                               child: Container(
@@ -182,28 +130,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                     horizontal: 80.0),
                                 child: Container(
                                   height: 60,
-                                  child: ElevatedButton(
-                                    style: ButtonStyle(
-                                      elevation: MaterialStateProperty.all(10),
-                                    ),
-                                    onPressed: homeViewModel.isRecording
-                                        ? null
-                                        : () => homeViewModel.recordDevice(),
-                                    child: homeViewModel.isRecording
-                                        ? CircularProgressIndicator(
-                                            backgroundColor: Colors.blue[900],
-                                          )
-                                        : Text(
-                                            'GRAVAR',
-                                            style: TextStyle(
-                                              color:
-                                                  Colors.white.withOpacity(0.8),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                              letterSpacing: 40,
-                                            ),
-                                          ),
-                                  ),
+                                  child: recordButton(homeViewModel),
                                 ),
                               ),
                             ),

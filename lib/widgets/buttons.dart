@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 GlobalKey<FormState> _formKey = GlobalKey();
 
-IconButton password(BuildContext context, HomePageViewModel homeViewModel,
+IconButton passwordButton(BuildContext context, HomePageViewModel homeViewModel,
         {bool refreshButton = false}) =>
     IconButton(
         icon: Icon(refreshButton ? Icons.refresh : Icons.settings),
@@ -57,10 +57,47 @@ IconButton password(BuildContext context, HomePageViewModel homeViewModel,
           }
         });
 
-IconButton refresh(BuildContext context, HomePageViewModel homeViewModel) {
+IconButton refreshButton(
+    BuildContext context, HomePageViewModel homeViewModel) {
   DirectorySiliconLab.pathProgramSiliconLab();
-  return password(context, homeViewModel, refreshButton: true);
+  return passwordButton(context, homeViewModel, refreshButton: true);
 }
+
+ElevatedButton searchProgramButton(
+        BuildContext context, HomePageViewModel homeViewModel) =>
+    ElevatedButton(
+      style: ButtonStyle(
+          elevation: MaterialStateProperty.all(10),
+          backgroundColor: MaterialStateProperty.all(Colors.blue[600])),
+      onPressed: () => homeViewModel.openFile(context),
+      child: Text(
+        'Carregar Programa',
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.9),
+        ),
+      ),
+    );
+
+ElevatedButton recordButton(HomePageViewModel homeViewModel) => ElevatedButton(
+      style: ButtonStyle(
+        elevation: MaterialStateProperty.all(10),
+      ),
+      onPressed:
+          homeViewModel.isRecording ? null : () => homeViewModel.recordDevice(),
+      child: homeViewModel.isRecording
+          ? CircularProgressIndicator(
+              backgroundColor: Colors.blue[900],
+            )
+          : Text(
+              'GRAVAR',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                letterSpacing: 40,
+              ),
+            ),
+    );
 
 _routesButton(
     BuildContext context, HomePageViewModel homeViewModel, bool refreshButton) {
