@@ -139,7 +139,7 @@ class HomePageViewModel extends ChangeNotifier {
                   Map params = jsonDecode(file.readAsStringSync())['params'];
                   List<String> paramsSiliconLabs = [];
                   params.entries.forEach((elementParams) {
-                    if (elementParams.value == "\$hex") {
+                    if (elementParams.key == "\$hex") {
                       paramsSiliconLabs.add(slots['hex']);
                     } else if (elementParams.value == "\$port") {
                       paramsSiliconLabs
@@ -151,11 +151,11 @@ class HomePageViewModel extends ChangeNotifier {
                           .add(elementParams.key + ' ' + elementParams.value);
                     }
                   });
+
                   process = ShellModelView.recordSiliconLabs(paramsSiliconLabs);
                 }
 
                 process.then((process) {
-                  print(process.stdout);
                   if (process.exitCode != 0) {
                     recordingSlots[index] = true;
                     index++;
