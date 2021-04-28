@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart';
@@ -36,5 +37,11 @@ class DirectoryRepository {
     Directory dir = fs.currentDirectory
         .childDirectory(fs.currentDirectory.path + '\\files');
     return dir;
+  }
+
+  static get pathPrograms {
+    File _file = File(
+        DirectoryRepository.confDirectory.path + '\\' + 'path_programs.json');
+    return jsonDecode(_file.readAsStringSync())['programs'];
   }
 }

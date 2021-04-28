@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gravador_mg/repository/DirectoryST.dart';
+import 'package:gravador_mg/repository/DirectorySiliconLab.dart';
 import 'package:gravador_mg/viewmodel/home_page_modelview.dart';
 import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
 
@@ -24,14 +26,14 @@ class ShellModelView extends ChangeNotifier {
 
   static Future<ProcessResult> recordST(List<String> params) {
     return Process.run(
-      'stvp/STVP_CmdLine.exe',
+      DirectoryST.pathProgramST() /* 'stvp/STVP_CmdLine.exe' */,
       params,
     );
   }
 
   static Future<ProcessResult> recordSiliconLabs(List<String> params) =>
       Process.run(
-        'efm8load.exe',
+        DirectorySiliconLab.pathProgramSiliconLab() /* 'efm8load.exe' */,
         params,
       );
 
