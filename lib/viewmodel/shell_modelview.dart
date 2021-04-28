@@ -8,11 +8,11 @@ import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
 
 class ShellModelView extends ChangeNotifier {
   static refreshSTPorts(HomePageViewModel model) {
-    _commandST(model);
+    _commandST(model, refresh: true);
   }
 
   static refreshSiliconLabsPorts(HomePageViewModel model) {
-    _commandSiliconLab(model);
+    _commandSiliconLab(model, refresh: true);
   }
 
   static Future<void> shellSTToVerifyPorts(NewConfigViewModel model) async {
@@ -37,7 +37,7 @@ class ShellModelView extends ChangeNotifier {
         params,
       );
 
-  static _commandST(dynamic model) async {
+  static _commandST(dynamic model, {bool refresh = false}) async {
     int index = 0;
 
     List<String> _devicesLocation = [];
@@ -58,17 +58,19 @@ class ShellModelView extends ChangeNotifier {
           'active': true,
         };
       });
+      if (!refresh) {
+        model.lenghtSlots.text = index.toString();
+      }
       model.slots = model.slots;
     });
   }
 
-  static _commandSiliconLab(dynamic model) async {
+  static _commandSiliconLab(dynamic model, {bool refresh = false}) async {
     int index = 0;
 
     await Process.run('chgport', []).then((process) {
       List<String> _ports = [];
       _ports = process.stdout.split('\n');
-      model.lenghtSlots.text = index.toString();
       model.slots['config'] = {};
       _ports.where((element) => element.contains('Silab')).forEach((element) {
         index++;
@@ -77,6 +79,9 @@ class ShellModelView extends ChangeNotifier {
           'active': true,
         };
       });
+      if (!refresh) {
+        model.lenghtSlots.text = index.toString();
+      }
       model.slots = model.slots;
     });
   }
