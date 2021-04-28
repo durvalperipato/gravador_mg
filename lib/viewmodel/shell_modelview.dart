@@ -58,7 +58,6 @@ class ShellModelView extends ChangeNotifier {
           'active': true,
         };
       });
-      model.lenghtSlots.text = index.toString();
       model.slots = model.slots;
     });
   }
@@ -78,7 +77,6 @@ class ShellModelView extends ChangeNotifier {
           'active': true,
         };
       });
-      model.lenghtSlots.text = index.toString();
       model.slots = model.slots;
     });
   }

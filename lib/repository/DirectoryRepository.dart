@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:file/file.dart' as file;
 import 'package:file/local.dart';
+import 'package:gravador_mg/model/programs.dart';
 
 _getReferenceLocalFileSystem() {
   file.FileSystem fs = LocalFileSystem();
@@ -43,5 +45,12 @@ class DirectoryRepository {
     File _file = File(
         DirectoryRepository.confDirectory.path + '\\' + 'path_programs.json');
     return jsonDecode(_file.readAsStringSync())['programs'];
+  }
+
+  static saveNewPathPrograms(String pathST, String pathSiliconLabs) {
+    File _file = File(
+        DirectoryRepository.confDirectory.path + '\\' + 'path_programs.json');
+    ProgramsPath programsPath = ProgramsPath(pathST, pathSiliconLabs);
+    _file.writeAsStringSync(jsonEncode(programsPath));
   }
 }

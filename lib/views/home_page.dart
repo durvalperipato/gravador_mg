@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gravador_mg/styles/home_page_styles.dart';
 import 'package:gravador_mg/viewmodel/home_page_modelview.dart';
-import 'package:gravador_mg/widgets/buttons.dart';
+import 'package:gravador_mg/widgets/buttons_home_page.dart';
 import 'package:gravador_mg/widgets/slots.dart';
 import 'package:provider/provider.dart';
 

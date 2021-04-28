@@ -5,12 +5,18 @@ import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gravador_mg/model/config.dart';
 import 'package:gravador_mg/repository/DirectoryRepository.dart';
+import 'package:gravador_mg/repository/DirectoryST.dart';
+import 'package:gravador_mg/repository/DirectorySiliconLab.dart';
 import 'package:gravador_mg/utils/variables.dart';
 
 class NewConfigViewModel extends ChangeNotifier {
   TextEditingController _lenghtSlots = TextEditingController(text: '0');
   TextEditingController _reference = TextEditingController();
   TextEditingController _hexFile = TextEditingController();
+  TextEditingController _pathSiliconLabProgram =
+      TextEditingController(text: DirectorySiliconLab.pathProgramSiliconLab());
+  TextEditingController _pathSTProgram =
+      TextEditingController(text: DirectoryST.pathProgramST());
   String _program = programSiliconLab;
 
   Map<String, dynamic> _slots = {'config': {}};
@@ -24,6 +30,8 @@ class NewConfigViewModel extends ChangeNotifier {
   get hexFile => _hexFile;
   get program => this._program;
   get isVerifyPorts => _isVerifyPorts;
+  get pathSiliconLabProgram => _pathSiliconLabProgram;
+  get pathSTProgram => _pathSTProgram;
 
   set program(String text) {
     _program = text;
@@ -93,9 +101,33 @@ class NewConfigViewModel extends ChangeNotifier {
     }
   }
 
+  openPathProgram({bool st = false, bool siliconLab = false}) {
+    final result = OpenFilePicker()
+      ..filterSpecification = {'Program (*.exe)': '*.exe'}
+      ..title = 'Selecione o arquivo';
+    final file = result.getFile();
+    if (file != null) {
+      if (file.path.isNotEmpty) {
+        if (siliconLab) {
+          pathSiliconLabProgram.text = file.path;
+          _saveNewPath();
+        }
+        if (st) {
+          pathSTProgram.text = file.path;
+          _saveNewPath();
+        }
+      }
+    }
+  }
+
   hasValueInAllFields() => hexFile.text.isNotEmpty &&
           reference.text.isNotEmpty &&
           lenghtSlots.text.isNotEmpty
       ? true
       : false;
+
+  _saveNewPath() {
+    DirectoryRepository.saveNewPathPrograms(
+        pathSTProgram.text, pathSiliconLabProgram.text);
+  }
 }

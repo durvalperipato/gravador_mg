@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gravador_mg/repository/DirectorySiliconLab.dart';
 import 'package:gravador_mg/utils/variables.dart';
 import 'package:gravador_mg/viewmodel/home_page_modelview.dart';
 import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
@@ -59,7 +58,6 @@ IconButton passwordButton(BuildContext context, HomePageViewModel homeViewModel,
 
 IconButton refreshButton(
     BuildContext context, HomePageViewModel homeViewModel) {
-  DirectorySiliconLab.pathProgramSiliconLab();
   return passwordButton(context, homeViewModel, refreshButton: true);
 }
 

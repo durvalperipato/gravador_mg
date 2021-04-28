@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/utils/variables.dart';
 import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
 import 'package:gravador_mg/viewmodel/shell_modelview.dart';
+import 'package:gravador_mg/widgets/buttons_new_config_page.dart';
 import 'package:provider/provider.dart';
 
 class NewConfig extends StatefulWidget {
@@ -34,7 +37,7 @@ class _NewConfigState extends State<NewConfig> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Flexible(
-                flex: 6,
+                flex: 8,
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -119,45 +122,10 @@ class _NewConfigState extends State<NewConfig> {
                               ),
                             ),
                             Container(
-                              height: 30,
-                              width: 150,
-                              child: TextButton(
-                                onPressed: () async {
-                                  newConfigViewModel.isVerifyPorts = true;
-                                  try {
-                                    newConfigViewModel.program == programST
-                                        ? await ShellModelView
-                                            .shellSTToVerifyPorts(
-                                                newConfigViewModel)
-                                        : await ShellModelView
-                                            .shellSiliconLabsToVerifyPorts(
-                                                newConfigViewModel);
-                                    newConfigViewModel.isVerifyPorts = false;
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Configuração das portas realizada com sucesso'),
-                                      backgroundColor: Colors.green[300],
-                                    ));
-                                  } catch (e) {
-                                    newConfigViewModel.isVerifyPorts = false;
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          'Não foi possível realizar a configuração'),
-                                      backgroundColor: Colors.red[300],
-                                    ));
-                                  }
-                                },
-                                child: newConfigViewModel.isVerifyPorts
-                                    ? Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10.0),
-                                        child: LinearProgressIndicator(),
-                                      )
-                                    : Text('Verificar Portas'),
-                              ),
-                            ),
+                                height: 30,
+                                width: 150,
+                                child:
+                                    verifyPorts(context, newConfigViewModel)),
                           ],
                         ),
                       ),
@@ -193,15 +161,8 @@ class _NewConfigState extends State<NewConfig> {
                             Container(
                               height: 50,
                               width: 70,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.folder_rounded,
-                                  color: Colors.yellow[600],
-                                ),
-                                onPressed: () {
-                                  newConfigViewModel.openFile();
-                                },
-                              ),
+                              child: openFilesButton(
+                                  () => newConfigViewModel.openFile()),
                             )
                           ],
                         ),
@@ -268,6 +229,72 @@ class _NewConfigState extends State<NewConfig> {
                             },
                             child: Text('Salvar'),
                           ),
+                        ),
+                      ),
+                      SizedBox(height: 80),
+                      Flexible(
+                        flex: 1,
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 30,
+                              width: 120,
+                              child: Center(
+                                child: Text('Path Silicon Labs'),
+                              ),
+                            ),
+                            Container(
+                              height: 30,
+                              width: 450,
+                              child: TextField(
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.zero),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14),
+                                controller:
+                                    newConfigViewModel.pathSiliconLabProgram,
+                              ),
+                            ),
+                            Container(
+                                height: 50,
+                                width: 70,
+                                child: openFilesButton(() => newConfigViewModel
+                                    .openPathProgram(siliconLab: true))),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Flexible(
+                        flex: 1,
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 30,
+                              width: 120,
+                              child: Center(
+                                child: Text('Path ST'),
+                              ),
+                            ),
+                            Container(
+                              height: 30,
+                              width: 450,
+                              child: TextField(
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.zero),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14),
+                                controller: newConfigViewModel.pathSTProgram,
+                              ),
+                            ),
+                            Container(
+                              height: 50,
+                              width: 70,
+                              child: openFilesButton(() =>
+                                  newConfigViewModel.openPathProgram(st: true)),
+                            ),
+                          ],
                         ),
                       ),
                     ],
