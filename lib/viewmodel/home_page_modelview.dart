@@ -141,9 +141,8 @@ class HomePageViewModel extends ChangeNotifier {
                   params.entries.forEach((elementParams) {
                     if (elementParams.key == "\$hex") {
                       paramsSiliconLabs.add(slots['hex']);
-                    } else if (elementParams.value == "\$port") {
-                      paramsSiliconLabs
-                          .add(elementParams.key + ' ' + element['port']);
+                    } else if (elementParams.key == "\$port") {
+                      paramsSiliconLabs.add(element['port']);
                     } else if (elementParams.value == "") {
                       paramsSiliconLabs.add(elementParams.key);
                     } else {
