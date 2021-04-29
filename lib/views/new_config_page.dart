@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:gravador_mg/utils/variables.dart';
 import 'package:gravador_mg/viewmodel/new_config_modelview.dart';
-import 'package:gravador_mg/viewmodel/shell_modelview.dart';
 import 'package:gravador_mg/widgets/buttons_new_config_page.dart';
 import 'package:provider/provider.dart';
 
