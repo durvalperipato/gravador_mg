@@ -86,7 +86,7 @@ class NewConfigViewModel extends ChangeNotifier {
 
     var result = jsonDecode(file.readAsStringSync());
     devicesST = result['devices'];
-    device = devicesST.elementAt(0);
+
     return Future.delayed(Duration(microseconds: 450), () => "");
   }
 
@@ -148,7 +148,8 @@ class NewConfigViewModel extends ChangeNotifier {
 
   hasValueInAllFields() => hexFile.text.isNotEmpty &&
           reference.text.isNotEmpty &&
-          lenghtSlots.text.isNotEmpty
+          lenghtSlots.text.isNotEmpty &&
+          device != null
       ? true
       : false;
 

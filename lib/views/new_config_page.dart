@@ -314,7 +314,7 @@ class _NewConfigState extends State<NewConfig> {
                                         SnackBar(
                                           backgroundColor: Colors.red[300],
                                           content: Text(
-                                              'FAVOR PREENCHER TODOS OS CAMPOS (SLOTS, PROGRAMA E REFERENCIA)'),
+                                              'FAVOR PREENCHER TODOS OS CAMPOS (SLOTS, FILE E DEVICE)'),
                                         ),
                                       );
                                     }
