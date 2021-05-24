@@ -108,6 +108,7 @@ class HomePageViewModel extends ChangeNotifier {
           int index = 0;
 
           int length = 0;
+
           slots['config'].values.forEach((element) async {
             if (element['active']) {
               element['color'] = Colors.yellow[200];
@@ -119,7 +120,6 @@ class HomePageViewModel extends ChangeNotifier {
                       'param_st.json');
                   Map params = jsonDecode(file.readAsStringSync())['params'];
                   List<String> paramsST = [];
-
                   params.entries.forEach((elementST) {
                     if (elementST.value == "") {
                       paramsST.add(elementST.key);
@@ -127,10 +127,16 @@ class HomePageViewModel extends ChangeNotifier {
                       paramsST.add(elementST.key + '=' + slots['hex']);
                     } else if (elementST.value == "\$id") {
                       paramsST.add(elementST.key + '=' + element['port']);
+                    } else if (elementST.value == "\$optionByte" &&
+                        slots["optionByte"].isNotEmpty) {
+                      paramsST.add(elementST.key + '=' + slots["optionByte"]);
+                    } else if (elementST.value == "\$device") {
+                      paramsST.add(elementST.key + '=' + slots["device"]);
                     } else {
                       paramsST.add(elementST.key + '=' + elementST.value);
                     }
                   });
+
                   process = ShellModelView.recordST(paramsST);
                 } else {
                   File file = File(DirectoryRepository.confDirectory.path +

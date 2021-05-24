@@ -13,11 +13,14 @@ class NewConfigViewModel extends ChangeNotifier {
   TextEditingController _lenghtSlots = TextEditingController(text: '0');
   TextEditingController _reference = TextEditingController();
   TextEditingController _hexFile = TextEditingController();
+  TextEditingController _optionByteFile = TextEditingController();
   TextEditingController _pathSiliconLabProgram =
       TextEditingController(text: DirectorySiliconLab.pathProgramSiliconLab());
   TextEditingController _pathSTProgram =
       TextEditingController(text: DirectoryST.pathProgramST());
   String _program = programSiliconLab;
+
+  String _device = devicesST.elementAt(0);
 
   Map<String, dynamic> _slots = {'config': {}};
 
@@ -28,13 +31,20 @@ class NewConfigViewModel extends ChangeNotifier {
   get lenghtSlots => _lenghtSlots;
   get reference => _reference;
   get hexFile => _hexFile;
+  get optionByteFile => _optionByteFile;
   get program => this._program;
   get isVerifyPorts => _isVerifyPorts;
   get pathSiliconLabProgram => _pathSiliconLabProgram;
   get pathSTProgram => _pathSTProgram;
+  get device => _device;
 
   set program(String text) {
     _program = text;
+    notifyListeners();
+  }
+
+  set device(String device) {
+    _device = device;
     notifyListeners();
   }
 
@@ -53,7 +63,9 @@ class NewConfigViewModel extends ChangeNotifier {
   }
 
   setNewConfig() {
-    Config newConfig = Config(slots, hexFile.text, reference.text, _program);
+    print(device);
+    Config newConfig = Config(slots, device, hexFile.text, optionByteFile.text,
+        reference.text, _program);
     File file = File(DirectoryRepository.filesDirectory.path +
         '\\' +
         '${reference.text}.json');
@@ -85,7 +97,7 @@ class NewConfigViewModel extends ChangeNotifier {
     }
   }
 
-  openFile() {
+  openFile({bool optionByte = false}) {
     final result = OpenFilePicker()
       ..filterSpecification = program == programST
           ? {'Program (*.s19)': '*.s19', 'Program (*.efm8)': '*.efm8'}
@@ -94,9 +106,13 @@ class NewConfigViewModel extends ChangeNotifier {
     final file = result.getFile();
     if (file != null) {
       if (file.path.isNotEmpty) {
-        hexFile.text = file.path /* .split("\\").last */;
-        reference.text =
-            hexFile.text.split("\\").last.split(".").first.toUpperCase();
+        if (optionByte) {
+          optionByteFile.text = file.path;
+        } else {
+          hexFile.text = file.path /* .split("\\").last */;
+          reference.text =
+              hexFile.text.split("\\").last.split(".").first.toUpperCase();
+        }
       }
     }
   }

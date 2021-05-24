@@ -164,6 +164,84 @@ class _NewConfigState extends State<NewConfig> {
                           ],
                         ),
                       ),
+                      if (newConfigViewModel.program == programST)
+                        SizedBox(
+                          height: 20,
+                        ),
+                      if (newConfigViewModel.program == programST)
+                        Flexible(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 30,
+                                width: 120,
+                                child: Center(
+                                  child: Text('Option Byte'),
+                                ),
+                              ),
+                              Container(
+                                height: 30,
+                                width: 250,
+                                child: TextFormField(
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      contentPadding: EdgeInsets.zero),
+                                  textAlign: TextAlign.center,
+                                  controller: newConfigViewModel.optionByteFile,
+                                ),
+                              ),
+                              Container(
+                                height: 50,
+                                width: 70,
+                                child: openFilesButton(() => newConfigViewModel
+                                    .openFile(optionByte: true)),
+                              )
+                            ],
+                          ),
+                        ),
+                      if (newConfigViewModel.program == programST)
+                        SizedBox(
+                          height: 20,
+                        ),
+                      if (newConfigViewModel.program == programST)
+                        Flexible(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 30,
+                                width: 120,
+                                child: Center(
+                                  child: Text('Device'),
+                                ),
+                              ),
+                              Container(
+                                height: 30,
+                                width: 250,
+                                child: DropdownButton(
+                                  underline: Container(),
+                                  onChanged: (value) =>
+                                      newConfigViewModel.device = value,
+                                  value: newConfigViewModel.device,
+                                  items: devicesST
+                                      .map(
+                                        (value) => DropdownMenuItem(
+                                          value: value,
+                                          child: Text(value),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 50,
+                                width: 70,
+                              )
+                            ],
+                          ),
+                        ),
                       SizedBox(
                         height: 20,
                       ),

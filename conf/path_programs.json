@@ -1,6 +1,1 @@
-{
-    "programs":{
-        "ST":"C:\\Users\\DURVAL\\Documents\\Flutter Projects\\gravador_mg\\stvp\\STVP_CmdLine.exe",
-        "SILICON LABS":"C:\\Users\\DURVAL\\Documents\\Flutter Projects\\gravador_mg\\efm8load.exe"
-    }
-}
+{"programs":{"ST":"C:\\Users\\dperipato\\Desktop\\Project\\gravador_mg\\stvp\\STVP_CmdLine.exe","SILICON LABS":"C:\\Users\\dperipato\\Desktop\\Project\\gravador_mg\\efm8load.exe"}}

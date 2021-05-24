@@ -3,10 +3,12 @@
         "-BoardName": "ST-LINK",
         "-Port": "USB",
         "-ProgMode": "SWIM",
-        "-Device": "STM8S001J3",
+        "-Device": "$device",
         "-no_loop": "",
         "-FileProg":"$hex",
+        "-FileOption":"$optionByte",
         "-Tool_ID":"$id"
     }
 
 }
+

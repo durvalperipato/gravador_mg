@@ -22,7 +22,7 @@ TextButton verifyPorts(
               ? ShellModelView.shellSTToVerifyPorts(newConfigViewModel)
               : ShellModelView.shellSiliconLabsToVerifyPorts(
                   newConfigViewModel);
-          Timer(Duration(seconds: 4), () {
+          Timer(Duration(seconds: 2), () {
             newConfigViewModel.isVerifyPorts = false;
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('Configuração das portas realizada com sucesso'),
@@ -42,5 +42,7 @@ TextButton verifyPorts(
               padding: const EdgeInsets.only(left: 10.0),
               child: LinearProgressIndicator(),
             )
-          : Text('Verificar Portas'),
+          : Text(newConfigViewModel.program == programST
+              ? 'Vincular ID'
+              : 'Verificar Portas'),
     );
