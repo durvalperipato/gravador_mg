@@ -34,6 +34,11 @@ class DirectoryRepository {
     return dir;
   }
 
+  static String get devicesPath {
+    String path = confDirectory.path + '\\' + 'devices.json';
+    return path;
+  }
+
   static Directory get filesDirectory {
     var fs = _getReferenceLocalFileSystem();
     Directory dir = fs.currentDirectory

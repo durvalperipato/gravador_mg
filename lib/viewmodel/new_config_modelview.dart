@@ -20,7 +20,9 @@ class NewConfigViewModel extends ChangeNotifier {
       TextEditingController(text: DirectoryST.pathProgramST());
   String _program = programSiliconLab;
 
-  String _device = devicesST.elementAt(0);
+  String _device;
+
+  List<dynamic> devicesST = [];
 
   Map<String, dynamic> _slots = {'config': {}};
 
@@ -63,7 +65,6 @@ class NewConfigViewModel extends ChangeNotifier {
   }
 
   setNewConfig() {
-    print(device);
     Config newConfig = Config(slots, device, hexFile.text, optionByteFile.text,
         reference.text, _program);
     File file = File(DirectoryRepository.filesDirectory.path +
@@ -78,6 +79,15 @@ class NewConfigViewModel extends ChangeNotifier {
     slots.clear();
     slots['config'] = {};
     notifyListeners();
+  }
+
+  Future<String> getDevicesFromFile() {
+    File file = File(DirectoryRepository.devicesPath);
+
+    var result = jsonDecode(file.readAsStringSync());
+    devicesST = result['devices'];
+    device = devicesST.elementAt(0);
+    return Future.delayed(Duration(microseconds: 450), () => "");
   }
 
   submitSlots(String value) {

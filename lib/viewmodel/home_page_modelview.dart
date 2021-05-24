@@ -121,22 +121,26 @@ class HomePageViewModel extends ChangeNotifier {
                   Map params = jsonDecode(file.readAsStringSync())['params'];
                   List<String> paramsST = [];
                   params.entries.forEach((elementST) {
-                    if (elementST.value == "") {
+                    if (elementST.value == "" &&
+                        elementST.value != "\$optionByte") {
                       paramsST.add(elementST.key);
                     } else if (elementST.value == "\$hex") {
                       paramsST.add(elementST.key + '=' + slots['hex']);
                     } else if (elementST.value == "\$id") {
                       paramsST.add(elementST.key + '=' + element['port']);
+                    } else if (elementST.value == "\$device") {
+                      paramsST.add(elementST.key + '=' + slots["device"]);
                     } else if (elementST.value == "\$optionByte" &&
                         slots["optionByte"].isNotEmpty) {
                       paramsST.add(elementST.key + '=' + slots["optionByte"]);
-                    } else if (elementST.value == "\$device") {
-                      paramsST.add(elementST.key + '=' + slots["device"]);
                     } else {
-                      paramsST.add(elementST.key + '=' + elementST.value);
+                      if (elementST.value != "\$optionByte") {
+                        paramsST.add(elementST.key + '=' + elementST.value);
+                      }
                     }
                   });
 
+                  print(paramsST);
                   process = ShellModelView.recordST(paramsST);
                 } else {
                   File file = File(DirectoryRepository.confDirectory.path +
