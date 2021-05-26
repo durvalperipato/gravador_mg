@@ -97,8 +97,8 @@ ElevatedButton recordButton(HomePageViewModel homeViewModel) => ElevatedButton(
             ),
     );
 
-_routesButton(
-    BuildContext context, HomePageViewModel homeViewModel, bool refreshButton) {
+_routesButton(BuildContext context, HomePageViewModel homeViewModel,
+    bool refreshButton) async {
   if (_formKey.currentState.validate()) {
     if (refreshButton) {
       homeViewModel.slots['program'] == programST
