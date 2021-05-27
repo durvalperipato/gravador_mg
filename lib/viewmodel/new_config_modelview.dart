@@ -8,6 +8,7 @@ import 'package:gravador_mg/repository/DirectoryRepository.dart';
 import 'package:gravador_mg/repository/DirectoryST.dart';
 import 'package:gravador_mg/repository/DirectorySiliconLab.dart';
 import 'package:gravador_mg/utils/variables.dart';
+import 'package:gravador_mg/viewmodel/shell_modelview.dart';
 
 class NewConfigViewModel extends ChangeNotifier {
   TextEditingController _lenghtSlots = TextEditingController(text: '0');
@@ -21,7 +22,7 @@ class NewConfigViewModel extends ChangeNotifier {
   String _program; // = programSiliconLab;
 
   String _device;
-  String groupValueRadioButton;
+  String _groupValueRadioButton;
 
   List<dynamic> devicesST = [];
 
@@ -29,6 +30,8 @@ class NewConfigViewModel extends ChangeNotifier {
 
   //bool valueCheckBox = true;
   bool _isVerifyPorts = false;
+
+  bool autoVerifyPortsDialog = false;
 
   get slots => _slots;
   get lenghtSlots => _lenghtSlots;
@@ -40,6 +43,7 @@ class NewConfigViewModel extends ChangeNotifier {
   get pathSiliconLabProgram => _pathSiliconLabProgram;
   get pathSTProgram => _pathSTProgram;
   get device => _device;
+  get groupValueRadioButton => _groupValueRadioButton;
 
   set program(String text) {
     _program = text;
@@ -63,6 +67,20 @@ class NewConfigViewModel extends ChangeNotifier {
 
   set lenghtSlots(String value) {
     _lenghtSlots.text = value;
+  }
+
+  set groupValueRadioButton(String value) {
+    slots.clear();
+    slots['config'] = {};
+    autoVerifyPortsDialog = true;
+    _groupValueRadioButton = value;
+    _lenghtSlots.text = '0';
+  }
+
+  verifyPorts(NewConfigViewModel model) {
+    program == programST
+        ? ShellModelView.shellSTToVerifyPorts(model)
+        : ShellModelView.shellSiliconLabsToVerifyPorts(model);
   }
 
   setNewConfig() {
@@ -98,13 +116,14 @@ class NewConfigViewModel extends ChangeNotifier {
       int _length = int.parse(value);
       slots.clear();
       slots['config'] = {};
+
       for (int index = 1; index <= _length; index++) {
         slots['config']['SLOT $index'] = {
-          'port': _program == programST ? '${index - 1}' : 'PORT$index',
+          'port': _program == programST ? '${index - 1}' : 'COM$index',
           'active': true,
         };
-        notifyListeners();
       }
+      notifyListeners();
     }
   }
 
