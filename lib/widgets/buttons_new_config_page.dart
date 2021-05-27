@@ -12,9 +12,9 @@ IconButton openFilesButton(VoidCallback onPressed) => IconButton(
     ),
     onPressed: onPressed);
 
-TextButton verifyPorts(
+IconButton verifyPorts(
         BuildContext context, NewConfigViewModel newConfigViewModel) =>
-    TextButton(
+    IconButton(
       onPressed: () async {
         newConfigViewModel.isVerifyPorts = true;
         try {
@@ -37,12 +37,13 @@ TextButton verifyPorts(
           ));
         }
       },
-      child: newConfigViewModel.isVerifyPorts
+      icon: newConfigViewModel.isVerifyPorts
           ? Padding(
               padding: const EdgeInsets.only(left: 10.0),
               child: LinearProgressIndicator(),
             )
-          : Text(newConfigViewModel.program == programST
-              ? 'Vincular ID'
-              : 'Verificar Portas'),
+          : Icon(
+              Icons.refresh,
+              color: Colors.black87,
+            ),
     );

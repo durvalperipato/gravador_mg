@@ -18,15 +18,16 @@ class NewConfigViewModel extends ChangeNotifier {
       TextEditingController(text: DirectorySiliconLab.pathProgramSiliconLab());
   TextEditingController _pathSTProgram =
       TextEditingController(text: DirectoryST.pathProgramST());
-  String _program = programSiliconLab;
+  String _program; // = programSiliconLab;
 
   String _device;
+  String groupValueRadioButton;
 
   List<dynamic> devicesST = [];
 
   Map<String, dynamic> _slots = {'config': {}};
 
-  bool valueCheckBox = true;
+  //bool valueCheckBox = true;
   bool _isVerifyPorts = false;
 
   get slots => _slots;
@@ -74,12 +75,12 @@ class NewConfigViewModel extends ChangeNotifier {
     file.writeAsStringSync(jsonEncode(newConfig));
   }
 
-  onClickCheckBox() {
+  /* onClickCheckBox() {
     valueCheckBox = !valueCheckBox;
     slots.clear();
     slots['config'] = {};
     notifyListeners();
-  }
+  } */
 
   Future<String> getDevicesFromFile() {
     File file = File(DirectoryRepository.devicesPath);
